@@ -8,8 +8,30 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        # Aquí el encargado de Autenticación pondrá su lógica de verificar hash
-        return redirect(url_for('main.dashboard'))
+        correo = request.form.get('correo')
+        password = request.form.get('password')
+
+        # Validar que los campos no estén vacíos
+        if not correo or not password:
+            flash('Por favor ingresa correo y contraseña.', 'warning')
+            return render_template('login.html')
+
+        # Buscar usuario en la base de datos
+        usuario = Usuario.query.filter_by(correo=correo).first()
+
+        # Validar credenciales
+        if usuario and usuario.check_password(password):
+            # Guardar información en la sesión
+            session['user_id'] = usuario.id
+            session['rol'] = usuario.rol
+            session['user_name'] = usuario.nombre
+            
+            flash(f'¡Bienvenido de nuevo, {usuario.nombre}!', 'success')
+            return redirect(url_for('main.dashboard'))
+        else:
+            flash('Credenciales incorrectas. Por favor verifica tus datos.', 'danger')
+            return render_template('login.html')
+
     return render_template('login.html')
 
 
