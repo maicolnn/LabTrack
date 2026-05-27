@@ -8,34 +8,24 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Estilo Premium -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+        <script defer src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </head>
-<script>
-  const form = document.getElementById('resetForm');
-  form.setAttribute('novalidate', true);
-
-  form.addEventListener('submit', (e) => {
-    const correo = document.getElementById('correo');
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(correo.value)) {
-      correo.classList.add('is-invalid');
-      let fb = correo.parentElement.nextElementSibling;
-      if (!fb || !fb.classList.contains('invalid-feedback')) {
-        fb = document.createElement('div');
-        fb.className = 'invalid-feedback';
-        correo.parentElement.insertAdjacentElement('afterend', fb);
-      }
-      fb.textContent = 'Ingresa un correo electrónico válido.';
-      fb.style.display = 'block';
-      e.preventDefault();
-    } else {
-      correo.classList.remove('is-invalid');
-      correo.classList.add('is-valid');
-    }
-  });
-</script>
 <body>
     <div class="auth-container">
         <div class="auth-card">
+                        <div class="auth-topbar">
+                                <div class="auth-brand">
+                                        <img src="{{ url_for('static', filename='images/labtrak_logotipo.png') }}" alt="Logo LabTrack" class="brand-logo">
+                                        <div>
+                                                <h1 class="auth-title" style="margin-bottom: 2px; text-align:left;">LabTrack</h1>
+                                                <p class="auth-subtitle" style="text-align:left;">Recupera tu acceso</p>
+                                        </div>
+                                </div>
+                                <button type="button" class="theme-toggle" data-theme-toggle aria-label="Cambiar tema">
+                                        <i class="bi bi-moon-stars"></i>
+                                </button>
+                        </div>
+
             <div class="auth-header">
                 <div class="auth-logo">
                     <i class="bi bi-key"></i>
@@ -62,7 +52,7 @@
                 <div class="form-group" style="margin-bottom: 24px;">
                     <label for="correo" class="form-label">Correo Electrónico</label>
                     <div class="input-container">
-                        <input type="email" name="correo" id="correo" class="form-input" placeholder="nombre@correo.com" required>
+                        <input type="email" name="correo" id="correo" class="form-input" placeholder="nombre@correo.com" required autocomplete="email">
                         <i class="bi bi-envelope input-icon"></i>
                     </div>
                 </div>

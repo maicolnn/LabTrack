@@ -2,16 +2,44 @@
 
 :root {
     --bg-dark: #090d16;
+    --bg-light: #f4f7fb;
     --card-bg: rgba(17, 25, 40, 0.65);
+    --card-bg-light: rgba(255, 255, 255, 0.9);
     --card-border: rgba(255, 255, 255, 0.08);
+    --card-border-light: rgba(15, 23, 42, 0.08);
     --primary: #6366f1;
     --primary-glow: rgba(99, 102, 241, 0.35);
     --primary-hover: #4f46e5;
     --text-primary: #f3f4f6;
     --text-secondary: #9ca3af;
+    --text-primary-light: #0f172a;
+    --text-secondary-light: #475569;
     --success: #10b981;
     --danger: #ef4444;
     --warning: #f59e0b;
+}
+
+html[data-theme='light'] {
+    --bg-dark: var(--bg-light);
+    --card-bg: var(--card-bg-light);
+    --card-border: var(--card-border-light);
+    --text-primary: var(--text-primary-light);
+    --text-secondary: var(--text-secondary-light);
+}
+
+html[data-theme='light'] .navbar {
+    background: rgba(255, 255, 255, 0.84);
+    border-bottom-color: rgba(15, 23, 42, 0.08);
+}
+
+html[data-theme='light'] .nav-brand,
+html[data-theme='light'] .user-name {
+    color: var(--text-primary);
+}
+
+html[data-theme='light'] .logout-btn {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.18);
 }
 
 * {
@@ -53,7 +81,57 @@ body {
     gap: 12px;
     font-size: 22px;
     font-weight: 700;
-    color: white;
+    color: var(--text-primary);
+}
+
+.nav-brand a {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: inherit;
+    text-decoration: none;
+}
+
+.brand-logo-img {
+    width: 46px;
+    height: 46px;
+    object-fit: contain;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 6px;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+}
+
+.brand-name {
+    display: inline-flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.brand-name small {
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.theme-toggle {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.theme-toggle:hover {
+    transform: translateY(-1px);
+    background: rgba(99, 102, 241, 0.12);
+    border-color: rgba(99, 102, 241, 0.28);
 }
 
 .nav-brand i {
@@ -75,7 +153,7 @@ body {
 .user-name {
     font-weight: 600;
     font-size: 15px;
-    color: white;
+    color: var(--text-primary);
 }
 
 .user-role {
@@ -181,4 +259,52 @@ body {
 
 .card-title i {
     color: var(--primary);
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        padding: 14px 18px;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .user-profile {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .nav-brand {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 540px) {
+    .dashboard-container {
+        padding: 0 16px;
+        margin: 24px auto;
+    }
+
+    .dashboard-card {
+        padding: 24px 18px;
+    }
+
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .user-profile {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .user-info {
+        text-align: left;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
 }
