@@ -1,2 +1,16 @@
-<h1>Pantalla de Reseteo de Contrasena</h1>
-<p>Espacio para el diseno definitivo del integrante de Frontend.</p>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Recuperar Contraseña - LabTrack</title>
+</head>
+<body>
+    <h2>Recuperación de Contraseña</h2>
+    <p>Introduce tu correo electrónico y te enviaremos las instrucciones para restablecer tu clave.</p>
+    <form action="/auth/reseteo" method="POST">
+        <input type="email" name="correo" placeholder="tu-correo@ejemplo.com" required>
+        <button type="submit">Enviar enlace</button>
+    </form>
+    <p><a href="/auth/login">Volver al Login</a></p>
+</body>
+</html>
