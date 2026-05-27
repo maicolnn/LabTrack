@@ -9,6 +9,49 @@
     <!-- Estilo Premium -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
 </head>
+<script>
+  const form = document.getElementById('loginForm');
+  form.setAttribute('novalidate', true);
+
+  form.addEventListener('submit', (e) => {
+    let valid = true;
+    const correo = document.getElementById('correo');
+    const password = document.getElementById('password');
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(correo.value)) {
+      marcarInvalido(correo, 'Ingresa un correo electrónico válido.');
+      valid = false;
+    } else { marcarValido(correo); }
+
+    if (!password.value.trim()) {
+      marcarInvalido(password, 'La contraseña es obligatoria.');
+      valid = false;
+    } else { marcarValido(password); }
+
+    if (!valid) e.preventDefault();
+  });
+
+  function marcarInvalido(input, msg) {
+    input.classList.add('is-invalid');
+    input.classList.remove('is-valid');
+    let fb = input.parentElement.nextElementSibling;
+    if (!fb || !fb.classList.contains('invalid-feedback')) {
+      fb = document.createElement('div');
+      fb.className = 'invalid-feedback';
+      input.parentElement.insertAdjacentElement('afterend', fb);
+    }
+    fb.textContent = msg;
+    fb.style.display = 'block';
+  }
+
+  function marcarValido(input) {
+    input.classList.remove('is-invalid');
+    input.classList.add('is-valid');
+    const fb = input.parentElement.nextElementSibling;
+    if (fb && fb.classList.contains('invalid-feedback')) fb.style.display = 'none';
+  }
+</script>
 <body>
     <div class="auth-container">
         <div class="auth-card">
