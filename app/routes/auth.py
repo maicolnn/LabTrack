@@ -87,3 +87,10 @@ def registro():
 @auth_bp.route('/reseteo', methods=['GET', 'POST'])
 def reseteo():
     return render_template('reseteo.html')
+
+
+@auth_bp.route('/logout')
+def logout():
+    session.clear()
+    flash('Has cerrado sesión correctamente.', 'info')
+    return redirect(url_for('auth.login'))
