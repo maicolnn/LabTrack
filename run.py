@@ -4,7 +4,7 @@ from flask_socketio import SocketIO
 from app.routes.auth import auth_bp
 from app.routes.main import main_bp
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='app/templates')
 
 # Configuración de la base de datos relacional local (SQLite para desarrollo)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///laboratorio.db'
