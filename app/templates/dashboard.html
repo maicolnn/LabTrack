@@ -8,6 +8,253 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Estilo Premium -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <style>
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        thead {
+            background: rgba(59, 130, 246, 0.1);
+            border-bottom: 2px solid rgba(59, 130, 246, 0.2);
+        }
+        
+        th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #60a5fa;
+            font-size: 14px;
+        }
+        
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 14px;
+        }
+        
+        tbody tr:hover {
+            background: rgba(59, 130, 246, 0.05);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .btn-edit, .btn-delete, .btn-add {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.3s;
+        }
+        
+        .btn-edit {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        
+        .btn-edit:hover {
+            background: rgba(59, 130, 246, 0.3);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+        
+        .btn-delete {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .btn-delete:hover {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: rgba(239, 68, 68, 0.5);
+        }
+        
+        .btn-add {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 10px 16px;
+        }
+        
+        .btn-add:hover {
+            background: rgba(16, 185, 129, 0.3);
+            border-color: rgba(16, 185, 129, 0.5);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--bg-secondary, #1a1a2e);
+            border-radius: 12px;
+            padding: 32px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 16px;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary, #999);
+            cursor: pointer;
+            font-size: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 13px;
+            color: var(--text-primary, #eee);
+        }
+        
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary, #eee);
+            font-size: 13px;
+            font-family: inherit;
+        }
+        
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #60a5fa;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            justify-content: flex-end;
+        }
+        
+        .btn-primary, .btn-secondary {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: rgba(59, 130, 246, 0.8);
+            color: white;
+            border: 1px solid rgba(59, 130, 246, 0.5);
+        }
+        
+        .btn-primary:hover {
+            background: rgba(59, 130, 246, 1);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary, #999);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary, #999);
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary, #999);
+        }
+        
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            border: 1px solid transparent;
+        }
+        
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #34d399;
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+        
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+    </style>
 </head>
 <body>
 
@@ -36,24 +283,8 @@
     <!-- Contenedor del Dashboard -->
     <main class="dashboard-container">
         
-        <!-- Notificaciones Flash -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div style="margin-bottom: 24px;">
-                    {% for category, message in messages %}
-                        <div style="padding: 14px 16px; border-radius: 12px; font-size: 14px; font-weight: 500; margin-bottom: 12px; border: 1px solid transparent; display: flex; align-items: center;
-                            {% if category == 'success' %}
-                                background: rgba(16, 185, 129, 0.1); color: #34d399; border-color: rgba(16, 185, 129, 0.2);
-                            {% else %}
-                                background: rgba(59, 130, 246, 0.1); color: #60a5fa; border-color: rgba(59, 130, 246, 0.2);
-                            {% endif %}">
-                            <i class="bi bi-info-circle-fill" style="margin-right: 8px;"></i>
-                            <span>{{ message }}</span>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
+        <!-- Contenedor de Alertas -->
+        <div id="alertContainer" style="margin-bottom: 24px;"></div>
 
         <div class="welcome-section">
             <h1 class="welcome-title">¡Hola, {{ session.get('user_name', 'Usuario') }}!</h1>
@@ -62,44 +293,27 @@
 
         <div class="dashboard-grid">
             
-            <!-- Vista Condicional según el Rol (Requisito de la Guía) -->
-            {% if session.get('rol') == 'Tecnico' %}
-                <!-- Espacio Exclusivo del Técnico -->
-                <div class="dashboard-card" style="border-left: 4px solid #c084fc;">
-                    <div class="card-header">
-                        <h2 class="card-title">
-                            <i class="bi bi-folder-plus"></i>
-                            <span>Administración de Exámenes (Catálogo)</span>
-                        </h2>
-                        <span class="user-role tecnico">Sección Técnico</span>
-                    </div>
-                    <p style="color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6;">
-                        Aquí se cargará la tabla interactiva de exámenes médicos con opciones para añadir, editar o eliminar registros, gestionado por el Integrante 3.
-                    </p>
-                    <div style="background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 40px; text-align: center; color: var(--text-secondary);">
-                        <i class="bi bi-table" style="font-size: 32px; display: block; margin-bottom: 12px; color: var(--primary);"></i>
-                        Tabla del Catálogo de Exámenes (CRUD por Integrante 3)
-                    </div>
+            <!-- Sección de Exámenes -->
+            <div class="dashboard-card" style="border-left: 4px solid #3b82f6;">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="bi bi-table"></i>
+                        <span>Catálogo de Exámenes Médicos</span>
+                    </h2>
+                    {% if session.get('rol') == 'Tecnico' %}
+                        <button class="btn-add" id="btnCrearExamen">
+                            <i class="bi bi-plus-lg"></i>
+                            <span>Nuevo Examen</span>
+                        </button>
+                    {% endif %}
                 </div>
-            {% else %}
-                <!-- Espacio Exclusivo del Paciente -->
-                <div class="dashboard-card" style="border-left: 4px solid #818cf8;">
-                    <div class="card-header">
-                        <h2 class="card-title">
-                            <i class="bi bi-clipboard2-pulse"></i>
-                            <span>Mis Citas y Resultados de Exámenes</span>
-                        </h2>
-                        <span class="user-role paciente">Sección Paciente</span>
-                    </div>
-                    <p style="color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6;">
-                        Bienvenido. En esta sección podrás ver tus citas programadas y descargar o visualizar tus resultados clínicos en cuanto estén listos.
-                    </p>
-                    <div style="background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 40px; text-align: center; color: var(--text-secondary);">
-                        <i class="bi bi-clipboard2-data" style="font-size: 32px; display: block; margin-bottom: 12px; color: var(--primary);"></i>
-                        Tus Resultados de Exámenes Clínicos aparecerán aquí
-                    </div>
+
+                <!-- Tabla de Exámenes -->
+                <div id="examenesContainer" class="loading">
+                    <i class="bi bi-hourglass-split"></i>
+                    <p>Cargando exámenes...</p>
                 </div>
-            {% endif %}
+            </div>
 
             <!-- Sección de Canal de Comunicación / Chat -->
             <div class="dashboard-card">
@@ -114,13 +328,244 @@
                 </p>
                 <div style="background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 40px; text-align: center; color: var(--text-secondary);">
                     <i class="bi bi-chat-quote" style="font-size: 32px; display: block; margin-bottom: 12px; color: var(--primary);"></i>
-                    Interface del Chat en Tiempo Real (WebSockets por Integrante 3)
+                    Interface del Chat en Tiempo Real (WebSockets)
                 </div>
             </div>
 
         </div>
 
     </main>
+
+    <!-- Modal para Crear/Editar Examen -->
+    <div class="modal" id="examenModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Nuevo Examen</h2>
+                <button class="modal-close" onclick="cerrarModal()">&times;</button>
+            </div>
+            
+            <form id="examenForm">
+                <div class="form-group">
+                    <label class="form-label">Nombre del Examen</label>
+                    <input type="text" name="nombre" class="form-input" placeholder="Ej: Análisis de sangre" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Descripción</label>
+                    <textarea name="descripcion" class="form-textarea" placeholder="Describa el examen..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Precio ($)</label>
+                    <input type="number" name="precio" class="form-input" step="0.01" min="0" placeholder="Ej: 50.00" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Tiempo de Entrega</label>
+                    <input type="text" name="tiempo_entrega" class="form-input" placeholder="Ej: 24 horas" required>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar Examen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script>
+        let examenEditandoId = null;
+
+        // Cargar exámenes al iniciar
+        document.addEventListener('DOMContentLoaded', cargarExamenes);
+
+        // Event listener para crear examen
+        document.getElementById('btnCrearExamen')?.addEventListener('click', () => {
+            examenEditandoId = null;
+            document.getElementById('modalTitle').textContent = 'Nuevo Examen';
+            document.getElementById('examenForm').reset();
+            document.getElementById('examenModal').classList.add('active');
+        });
+
+        // Event listener para enviar formulario
+        document.getElementById('examenForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(document.getElementById('examenForm'));
+            const datos = Object.fromEntries(formData);
+
+            try {
+                let url = '/examenes';
+                let metodo = 'POST';
+
+                if (examenEditandoId) {
+                    url = `/examenes/${examenEditandoId}`;
+                    metodo = 'PUT';
+                }
+
+                const response = await fetch(url, {
+                    method: metodo,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(datos)
+                });
+
+                const resultado = await response.json();
+
+                if (resultado.success) {
+                    mostrarAlerta(resultado.mensaje, 'success');
+                    cerrarModal();
+                    cargarExamenes();
+                } else {
+                    mostrarAlerta(resultado.error || 'Error desconocido', 'danger');
+                }
+            } catch (error) {
+                mostrarAlerta('Error al guardar examen: ' + error.message, 'danger');
+            }
+        });
+
+        async function cargarExamenes() {
+            const container = document.getElementById('examenesContainer');
+            
+            try {
+                const response = await fetch('/examenes');
+                const resultado = await response.json();
+
+                if (resultado.success && resultado.examenes.length > 0) {
+                    let html = '<div class="table-container"><table>';
+                    html += '<thead><tr>';
+                    html += '<th>Nombre</th>';
+                    html += '<th>Descripción</th>';
+                    html += '<th>Precio</th>';
+                    html += '<th>Tiempo de Entrega</th>';
+                    
+                    if ({{ 'true' if session.get('rol') == 'Tecnico' else 'false' }}) {
+                        html += '<th style="text-align: center;">Acciones</th>';
+                    }
+                    
+                    html += '</tr></thead>';
+                    html += '<tbody>';
+
+                    resultado.examenes.forEach(examen => {
+                        html += `<tr>
+                            <td><strong>${examen.nombre}</strong></td>
+                            <td>${examen.descripcion}</td>
+                            <td>$${parseFloat(examen.precio).toFixed(2)}</td>
+                            <td>${examen.tiempo_entrega}</td>`;
+                        
+                        if ({{ 'true' if session.get('rol') == 'Tecnico' else 'false' }}) {
+                            html += `<td style="text-align: center;">
+                                <div class="action-buttons">
+                                    <button class="btn-edit" onclick="editarExamen(${examen.id})">
+                                        <i class="bi bi-pencil"></i> Editar
+                                    </button>
+                                    <button class="btn-delete" onclick="eliminarExamen(${examen.id})">
+                                        <i class="bi bi-trash"></i> Eliminar
+                                    </button>
+                                </div>
+                            </td>`;
+                        }
+                        
+                        html += '</tr>';
+                    });
+
+                    html += '</tbody></table></div>';
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="bi bi-inbox"></i>
+                            <h3>No hay exámenes registrados</h3>
+                            <p>Crea el primer examen para comenzar.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="empty-state" style="color: #f87171;">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <h3>Error al cargar exámenes</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function editarExamen(id) {
+            try {
+                const response = await fetch(`/examenes/${id}`);
+                const resultado = await response.json();
+
+                if (resultado.success) {
+                    const examen = resultado.examen;
+                    examenEditandoId = id;
+                    
+                    document.getElementById('modalTitle').textContent = 'Editar Examen';
+                    document.querySelector('[name="nombre"]').value = examen.nombre;
+                    document.querySelector('[name="descripcion"]').value = examen.descripcion;
+                    document.querySelector('[name="precio"]').value = examen.precio;
+                    document.querySelector('[name="tiempo_entrega"]').value = examen.tiempo_entrega;
+                    
+                    document.getElementById('examenModal').classList.add('active');
+                } else {
+                    mostrarAlerta(resultado.error, 'danger');
+                }
+            } catch (error) {
+                mostrarAlerta('Error al cargar examen: ' + error.message, 'danger');
+            }
+        }
+
+        async function eliminarExamen(id) {
+            if (!confirm('¿Estás seguro de que deseas eliminar este examen?')) return;
+
+            try {
+                const response = await fetch(`/examenes/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const resultado = await response.json();
+
+                if (resultado.success) {
+                    mostrarAlerta(resultado.mensaje, 'success');
+                    cargarExamenes();
+                } else {
+                    mostrarAlerta(resultado.error, 'danger');
+                }
+            } catch (error) {
+                mostrarAlerta('Error al eliminar examen: ' + error.message, 'danger');
+            }
+        }
+
+        function cerrarModal() {
+            document.getElementById('examenModal').classList.remove('active');
+            document.getElementById('examenForm').reset();
+            examenEditandoId = null;
+        }
+
+        function mostrarAlerta(mensaje, tipo) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${tipo}`;
+            alertDiv.innerHTML = `
+                <i class="bi bi-info-circle-fill" style="margin-right: 8px;"></i>
+                <span>${mensaje}</span>
+            `;
+            alertContainer.appendChild(alertDiv);
+
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // Cerrar modal al hacer clic fuera de él
+        document.getElementById('examenModal').addEventListener('click', (e) => {
+            if (e.target.id === 'examenModal') {
+                cerrarModal();
+            }
+        });
+    </script>
 
 </body>
 </html>
