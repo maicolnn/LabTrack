@@ -3,67 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Pacientes - LabTrack</title>
-    <style>
-        /* Un estilo básico y limpio para que no se vea feo mientras desarrollas */
-        body { font-family: Arial, sans-serif; margin: 50px; background-color: #f4f7f6; }
-        .form-container { background: white; padding: 30px; border-radius: 8px; max-width: 400px; margin: auto; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .form-group input, .form-group select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
-        .btn { background-color: #28a745; color: white; border: none; padding: 10px; width: 100%; border-radius: 4px; cursor: pointer; }
-        .error-msg { color: red; font-size: 12px; display: none; margin-top: 5px; }
-    </style>
+    <title>Registro - LabTrack</title>
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Estilo Premium -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
 </head>
 <body>
+    <div class="auth-container">
+        <div class="auth-card" style="max-width: 500px; margin: auto;">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <i class="bi bi-person-plus"></i>
+                </div>
+                <h1 class="auth-title">Crear Cuenta</h1>
+                <p class="auth-subtitle">Regístrate para ver y seguir tus exámenes médicos</p>
+            </div>
 
-<div class="form-container">
-    <h2>Registro de Nuevo Paciente</h2>
-    
-    <form id="registroForm" action="/auth/registro" method="POST">
-        
-        <div class="form-group">
-            <label for="cedula">Cédula / DNI:</label>
-            <input type="text" id="cedula" name="cedula" required 
-                   pattern="[0-9]{10}" maxlength="10" 
-                   placeholder="Ej: 1726354712">
-            <small id="cedulaError" class="error-msg">La cédula debe tener exactamente 10 dígitos numéricos.</small>
+            <!-- Contenedor de Mensajes Flash -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="alerts-container">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category if category != 'error' else 'danger' }}">
+                                <i class="bi bi-info-circle-fill" style="margin-right: 8px;"></i>
+                                <span>{{ message }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('auth.registro') }}" method="POST" id="registerForm" novalidate>
+                
+                <div class="form-group">
+                    <label for="cedula" class="form-label">Cédula / DNI</label>
+                    <div class="input-container">
+                        <input type="text" name="cedula" id="cedula" class="form-input" 
+                               placeholder="Ej. 1723456789" 
+                               required 
+                               minlength="10" 
+                               maxlength="10" 
+                               pattern="[0-9]{10}">
+                        <i class="bi bi-card-text input-icon"></i>
+                    </div>
+                    <div class="invalid-feedback" id="cedulaFeedback">
+                        La cédula debe contener exactamente 10 dígitos numéricos.
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="nombre" class="form-label">Nombre Completo</label>
+                    <div class="input-container">
+                        <input type="text" name="nombre" id="nombre" class="form-input" placeholder="Juan Pérez" required>
+                        <i class="bi bi-person input-icon"></i>
+                    </div>
+                    <div class="invalid-feedback" id="nombreFeedback">
+                        Este campo es obligatorio.
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="correo" class="form-label">Correo Electrónico</label>
+                    <div class="input-container">
+                        <input type="email" name="correo" id="correo" class="form-input" placeholder="juan@correo.com" required>
+                        <i class="bi bi-envelope input-icon"></i>
+                    </div>
+                    <div class="invalid-feedback" id="correoFeedback">
+                        Ingresa un formato de correo electrónico válido.
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">Contraseña</label>
+                    <div class="input-container">
+                        <input type="password" name="password" id="password" class="form-input" placeholder="••••••••" required minlength="6">
+                        <i class="bi bi-lock input-icon"></i>
+                    </div>
+                    <div class="invalid-feedback" id="passwordFeedback">
+                        La contraseña debe tener al menos 6 caracteres.
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="rol" class="form-label">Tipo de Usuario (Rol)</label>
+                    <div class="select-container">
+                        <select name="rol" id="rol" class="form-select">
+                            <option value="Paciente" selected>Paciente (Ver resultados)</option>
+                            <option value="Tecnico">Técnico (Administrar exámenes)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="auth-btn">
+                    <span>Crear Cuenta</span>
+                    <i class="bi bi-arrow-right-short"></i>
+                </button>
+            </form>
+
+            <div class="auth-text-center">
+                <span>¿Ya tienes una cuenta?</span>
+                <a href="{{ url_for('auth.login') }}" class="auth-link">Inicia sesión aquí</a>
+            </div>
         </div>
+    </div>
 
-        <div class="form-group">
-            <label for="nombre">Nombre Completo:</label>
-            <input type="text" id="nombre" name="nombre" required placeholder="Juan Pérez">
-        </div>
+    <!-- Script de Validaciones en Pantalla -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('registerForm');
+            const cedulaInput = document.getElementById('cedula');
+            
+            // Restringir el campo de cédula para aceptar SOLO números durante la escritura
+            cedulaInput.addEventListener('keypress', (e) => {
+                const charCode = e.which ? e.which : e.keyCode;
+                if (charCode < 48 || charCode > 57) {
+                    e.preventDefault();
+                }
+            });
 
-        <div class="form-group">
-            <label for="correo">Correo Electrónico:</label>
-            <input type="email" id="correo" name="correo" required placeholder="juan@ejemplo.com">
-        </div>
+            // Evitar pegar caracteres no numéricos
+            cedulaInput.addEventListener('paste', (e) => {
+                const pasteData = (e.clipboardData || window.clipboardData).getData('text');
+                if (!/^\d+$/.test(pasteData)) {
+                    e.preventDefault();
+                }
+            });
 
-        <div class="form-group">
-            <label for="password">Contraseña:</label>
-            <input type="password" id="password" name="password" required minlength="6" placeholder="Mínimo 6 caracteres">
-        </div>
+            // Validar el formulario en el submit
+            form.addEventListener('submit', (e) => {
+                let isValid = true;
 
-        <button type="submit" class="btn">Registrarse</button>
-    </form>
-    <p>¿Ya tienes cuenta? <a href="/auth/login">Inicia sesión aquí</a></p>
-</div>
+                // 1. Validar Cédula (longitud exacta de 10 y solo números)
+                const cedulaVal = cedulaInput.value;
+                const cedulaFeedback = document.getElementById('cedulaFeedback');
+                if (cedulaVal.length !== 10 || !/^\d+$/.test(cedulaVal)) {
+                    cedulaInput.classList.add('is-invalid');
+                    cedulaInput.classList.remove('is-valid');
+                    cedulaFeedback.style.display = 'block';
+                    isValid = false;
+                } else {
+                    cedulaInput.classList.remove('is-invalid');
+                    cedulaInput.classList.add('is-valid');
+                    cedulaFeedback.style.display = 'none';
+                }
 
-<script>
-    // Validación extra con JavaScript antes de enviar el formulario
-    document.getElementById('registroForm').addEventListener('submit', function(e) {
-        const cedulaInput = document.getElementById('cedula');
-        const errorMsg = document.getElementById('cedulaError');
-        
-        // Verifica si contiene letras o si no tiene 10 dígitos
-        if (!/^\d{10}$/.test(cedulaInput.value)) {
-            e.preventDefault(); // Bloquea el envío del formulario
-            errorMsg.style.display = 'block';
-        } else {
-            errorMsg.style.display = 'none';
-        }
-    });
-</script>
+                // 2. Validar Nombre
+                const nombreInput = document.getElementById('nombre');
+                const nombreFeedback = document.getElementById('nombreFeedback');
+                if (nombreInput.value.trim() === '') {
+                    nombreInput.classList.add('is-invalid');
+                    nombreInput.classList.remove('is-valid');
+                    nombreFeedback.style.display = 'block';
+                    isValid = false;
+                } else {
+                    nombreInput.classList.remove('is-invalid');
+                    nombreInput.classList.add('is-valid');
+                    nombreFeedback.style.display = 'none';
+                }
+
+                // 3. Validar Correo
+                const correoInput = document.getElementById('correo');
+                const correoFeedback = document.getElementById('correoFeedback');
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(correoInput.value)) {
+                    correoInput.classList.add('is-invalid');
+                    correoInput.classList.remove('is-valid');
+                    correoFeedback.style.display = 'block';
+                    isValid = false;
+                } else {
+                    correoInput.classList.remove('is-invalid');
+                    correoInput.classList.add('is-valid');
+                    correoFeedback.style.display = 'none';
+                }
+
+                // 4. Validar Contraseña
+                const passwordInput = document.getElementById('password');
+                const passwordFeedback = document.getElementById('passwordFeedback');
+                if (passwordInput.value.length < 6) {
+                    passwordInput.classList.add('is-invalid');
+                    passwordInput.classList.remove('is-valid');
+                    passwordFeedback.style.display = 'block';
+                    isValid = false;
+                } else {
+                    passwordInput.classList.remove('is-invalid');
+                    passwordInput.classList.add('is-valid');
+                    passwordFeedback.style.display = 'none';
+                }
+
+                if (!isValid) {
+                    e.preventDefault(); // Detener el envío del formulario
+                }
+            });
+        });
+    </script>
 </body>
 </html>
