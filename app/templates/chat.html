@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - LabTrack</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <style>
+        /* ── Layout de pantalla completa ── */
+        .chat-page {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 61px); /* descuenta la navbar */
+        }
+
+        .chat-wrapper {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            flex: 1;
+            overflow: hidden;
+            max-width: 1200px;
+            width: 100%;
+            margin: 24px auto;
+            padding: 0 24px;
+            gap: 20px;
+        }
+
+        /* ── Panel izquierdo: info de la cita ── */
+        .chat-sidebar {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        .sidebar-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            margin-bottom: 4px;
+        }
+
+        .cita-info {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .cita-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(99,102,241,0.15);
+            border: 1px solid rgba(99,102,241,0.25);
+            color: #818cf8;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+        }
+
+        .cita-examen {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .cita-meta {
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .estado-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-top: 10px;
+        }
+
+        .estado-pendiente { background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(245,158,11,0.2); }
+        .estado-completada { background: rgba(16,185,129,0.12); color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
+        .estado-proceso { background: rgba(99,102,241,0.12); color: #818cf8; border: 1px solid rgba(99,102,241,0.2); }
+
+        /* Participantes */
+        .participant {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--card-border);
+        }
+        .participant:last-child { border-bottom: none; }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .avatar.tecnico { background: rgba(168,85,247,0.15); color: #c084fc; }
+        .avatar.paciente { background: rgba(99,102,241,0.15); color: #818cf8; }
+
+        .participant-info { flex: 1; min-width: 0; }
+        .participant-name { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+        .participant-role { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+
+        .online-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #34d399;
+            flex-shrink: 0;
+        }
+
+        /* Botón volver al dashboard */
+        .btn-volver {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
+            background: rgba(255,255,255,0.02);
+            transition: all .2s ease;
+            margin-top: auto;
+        }
+        .btn-volver:hover {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        /* ── Panel derecho: chat ── */
+        .chat-panel {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header del chat */
+        .chat-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .chat-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-icon {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        .chat-header-title { font-size: 17px; font-weight: 600; }
+        .chat-header-sub { font-size: 13px; color: var(--text-secondary); margin-top: 1px; }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .status-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--text-secondary);
+            transition: background .3s;
+        }
+        .status-dot.connected { background: #34d399; }
+
+        /* Área de mensajes */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            scroll-behavior: smooth;
+        }
+
+        .chat-messages::-webkit-scrollbar { width: 4px; }
+        .chat-messages::-webkit-scrollbar-track { background: transparent; }
+        .chat-messages::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 4px; }
+
+        /* Estado vacío */
+        .chat-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-secondary);
+            text-align: center;
+            gap: 12px;
+        }
+        .chat-empty i { font-size: 48px; color: rgba(99,102,241,0.3); }
+        .chat-empty h3 { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+        .chat-empty p { font-size: 14px; max-width: 280px; line-height: 1.6; }
+
+        /* Burbujas de mensaje */
+        .message-group {
+            display: flex;
+            gap: 10px;
+            max-width: 75%;
+        }
+
+        .message-group.mio {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-group.otro {
+            align-self: flex-start;
+        }
+
+        .msg-avatar {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            flex-shrink: 0;
+            align-self: flex-end;
+        }
+
+        .msg-avatar.tecnico { background: rgba(168,85,247,0.2); color: #c084fc; }
+        .msg-avatar.paciente { background: rgba(99,102,241,0.2); color: #818cf8; }
+
+        .msg-content { display: flex; flex-direction: column; gap: 4px; }
+
+        .msg-meta {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .message-group.mio .msg-meta { justify-content: flex-end; }
+
+        .msg-autor { font-weight: 600; }
+
+        .msg-rol {
+            font-size: 11px;
+            padding: 1px 6px;
+            border-radius: 10px;
+        }
+
+        .msg-rol.tecnico { background: rgba(168,85,247,0.12); color: #c084fc; }
+        .msg-rol.paciente { background: rgba(99,102,241,0.12); color: #818cf8; }
+
+        .burbuja {
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+
+        .message-group.otro .burbuja {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--card-border);
+            border-bottom-left-radius: 4px;
+            color: var(--text-primary);
+        }
+
+        .message-group.mio .burbuja {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            border-bottom-right-radius: 4px;
+            color: white;
+        }
+
+        .msg-hora {
+            font-size: 11px;
+            color: var(--text-secondary);
+            padding: 0 4px;
+        }
+        .message-group.mio .msg-hora { text-align: right; }
+
+        /* Notificación sistema */
+        .msg-sistema {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 6px 16px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            align-self: center;
+        }
+
+        /* Input de mensaje */
+        .chat-input-area {
+            padding: 16px 24px;
+            border-top: 1px solid var(--card-border);
+            flex-shrink: 0;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .msg-input-wrap { flex: 1; position: relative; }
+
+        .msg-input {
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: 'Outfit', sans-serif;
+            resize: none;
+            min-height: 48px;
+            max-height: 120px;
+            transition: border-color .2s, box-shadow .2s;
+            line-height: 1.5;
+        }
+
+        .msg-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99,102,241,0.15);
+        }
+
+        .msg-input::placeholder { color: var(--text-secondary); }
+
+        .send-btn {
+            width: 48px; height: 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all .2s ease;
+            box-shadow: 0 4px 12px rgba(99,102,241,0.25);
+        }
+
+        .send-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(99,102,241,0.4); }
+        .send-btn:active { transform: translateY(0); }
+        .send-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+        .input-hint {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar (igual al dashboard) -->
+    <header class="navbar">
+        <div class="nav-brand">
+            <i class="bi bi-activity"></i>
+            <span>LabTrack</span>
+        </div>
+        <div class="user-profile">
+            <div class="user-info">
+                <div class="user-name">{{ session.get('user_name', 'Usuario') }}</div>
+                <div class="user-role {{ 'tecnico' if session.get('rol') == 'Tecnico' else 'paciente' }}">
+                    {{ 'Técnico' if session.get('rol') == 'Tecnico' else 'Paciente' }}
+                </div>
+            </div>
+            <a href="{{ url_for('auth.logout') }}" class="logout-btn">
+                <span>Cerrar Sesión</span>
+                <i class="bi bi-box-arrow-right"></i>
+            </a>
+        </div>
+    </header>
+
+    <div class="chat-page">
+        <div class="chat-wrapper">
+
+            <!-- ── PANEL IZQUIERDO: Info de la cita ── -->
+            <aside class="chat-sidebar">
+
+                <div>
+                    <p class="sidebar-title">Cita clínica</p>
+                    <div class="cita-info">
+                        <div class="cita-badge">
+                            <i class="bi bi-clipboard2-pulse"></i>
+                            Cita #{{ cita.id if cita is defined else '001' }}
+                        </div>
+                        <div class="cita-examen">
+                            {{ cita.tipo_examen if cita is defined else 'Hemograma completo' }}
+                        </div>
+                        <div class="cita-meta">
+                            <i class="bi bi-calendar3"></i>
+                            {{ cita.fecha if cita is defined else '12/06/2025' }}
+                        </div>
+                        <div class="cita-meta">
+                            <i class="bi bi-clock"></i>
+                            {{ cita.hora if cita is defined else '09:00' }}
+                        </div>
+                        <div>
+                            <span class="estado-badge estado-proceso">
+                                <i class="bi bi-circle-fill" style="font-size:7px"></i>
+                                {{ cita.estado if cita is defined else 'En proceso' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <p class="sidebar-title">Participantes</p>
+                    <div class="participant">
+                        <div class="avatar paciente">
+                            {{ session.get('user_name', 'P')[0].upper() }}
+                        </div>
+                        <div class="participant-info">
+                            <div class="participant-name">{{ session.get('user_name', 'Paciente') }}</div>
+                            <div class="participant-role">Paciente</div>
+                        </div>
+                        <div class="online-dot"></div>
+                    </div>
+                    <div class="participant">
+                        <div class="avatar tecnico">T</div>
+                        <div class="participant-info">
+                            <div class="participant-name">Técnico Lab.</div>
+                            <div class="participant-role">Especialista clínico</div>
+                        </div>
+                        <div class="online-dot" id="tecnico-dot" style="background: var(--text-secondary)"></div>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('main.dashboard') }}" class="btn-volver">
+                    <i class="bi bi-arrow-left"></i>
+                    Volver al dashboard
+                </a>
+
+            </aside>
+
+            <!-- ── PANEL DERECHO: Chat ── -->
+            <section class="chat-panel">
+
+                <!-- Header -->
+                <div class="chat-header">
+                    <div class="chat-header-left">
+                        <div class="chat-icon">
+                            <i class="bi bi-chat-dots"></i>
+                        </div>
+                        <div>
+                            <div class="chat-header-title">Canal de soporte clínico</div>
+                            <div class="chat-header-sub">Consulta sobre tu muestra o resultado</div>
+                        </div>
+                    </div>
+                    <div class="connection-status">
+                        <div class="status-dot" id="statusDot"></div>
+                        <span id="statusText">Conectando...</span>
+                    </div>
+                </div>
+
+                <!-- Mensajes -->
+                <div class="chat-messages" id="chatMessages">
+
+                    <!-- Estado vacío (se oculta cuando llegan mensajes) -->
+                    <div class="chat-empty" id="chatEmpty">
+                        <i class="bi bi-chat-quote"></i>
+                        <h3>Inicia la conversación</h3>
+                        <p>Puedes preguntar sobre tu muestra, resultado o cualquier duda sobre tu examen clínico.</p>
+                    </div>
+
+                    <!-- Los mensajes del historial se renderizan aquí con Jinja2 -->
+                    {% if historial is defined and historial %}
+                        {% for msg in historial %}
+                        <div class="message-group {{ 'mio' if msg.emisor_id == session.get('user_id') else 'otro' }}">
+                            <div class="msg-avatar {{ msg.emisor_rol }}">
+                                {{ msg.emisor_nombre[0].upper() }}
+                            </div>
+                            <div class="msg-content">
+                                <div class="msg-meta">
+                                    <span class="msg-autor">{{ msg.emisor_nombre.split()[0] }}</span>
+                                    <span class="msg-rol {{ msg.emisor_rol }}">{{ msg.emisor_rol }}</span>
+                                </div>
+                                <div class="burbuja">{{ msg.contenido }}</div>
+                                <div class="msg-hora">{{ msg.timestamp }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+
+                </div>
+
+                <!-- Input -->
+                <div class="chat-input-area">
+                    <div class="input-row">
+                        <div class="msg-input-wrap">
+                            <textarea
+                                id="msgInput"
+                                class="msg-input"
+                                placeholder="Escribe tu mensaje aquí..."
+                                rows="1"
+                                maxlength="500"
+                            ></textarea>
+                        </div>
+                        <button class="send-btn" id="sendBtn" disabled title="Enviar mensaje">
+                            <i class="bi bi-send-fill"></i>
+                        </button>
+                    </div>
+                    <p class="input-hint">
+                        <i class="bi bi-info-circle"></i>
+                        Presiona <strong>Enter</strong> para enviar · <strong>Shift+Enter</strong> para nueva línea
+                    </p>
+                </div>
+
+            </section>
+        </div>
+    </div>
+
+    <!-- Socket.IO (el Integrante 3 activa la lógica WebSocket aquí) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        // ── Elementos del DOM ──────────────────────────────────
+        const chatMessages = document.getElementById('chatMessages');
+        const chatEmpty    = document.getElementById('chatEmpty');
+        const msgInput     = document.getElementById('msgInput');
+        const sendBtn      = document.getElementById('sendBtn');
+        const statusDot    = document.getElementById('statusDot');
+        const statusText   = document.getElementById('statusText');
+
+        const MI_ROL    = "{{ session.get('rol', 'Paciente') }}".toLowerCase();
+        const MI_NOMBRE = "{{ session.get('user_name', 'Usuario') }}";
+        const MI_ID     = {{ session.get('user_id', 0) }};
+        const SALA      = "cita_{{ cita.id if cita is defined else '1' }}";
+
+        // ── Scroll al fondo ────────────────────────────────────
+        function scrollBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        scrollBottom();
+
+        // Ocultar empty si ya hay mensajes en el historial
+        if (chatMessages.querySelectorAll('.message-group').length > 0) {
+            chatEmpty.style.display = 'none';
+        }
+
+        // ── Habilitar botón solo si hay texto ─────────────────
+        msgInput.addEventListener('input', () => {
+            sendBtn.disabled = msgInput.value.trim() === '';
+            // Auto-resize del textarea
+            msgInput.style.height = 'auto';
+            msgInput.style.height = Math.min(msgInput.scrollHeight, 120) + 'px';
+        });
+
+        // ── Enter para enviar, Shift+Enter para salto de línea ─
+        msgInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (!sendBtn.disabled) enviarMensaje();
+            }
+        });
+
+        sendBtn.addEventListener('click', enviarMensaje);
+
+        // ── Renderizar burbuja en pantalla ─────────────────────
+        function renderMensaje(data, esMio) {
+            chatEmpty.style.display = 'none';
+
+            const rol = esMio ? MI_ROL : (data.emisor_rol || 'paciente');
+            const inicial = (data.emisor_nombre || 'U')[0].toUpperCase();
+            const nombre  = (data.emisor_nombre || 'Usuario').split(' ')[0];
+            const hora    = data.timestamp || new Date().toLocaleTimeString('es-EC', {hour:'2-digit', minute:'2-digit'});
+
+            const group = document.createElement('div');
+            group.className = `message-group ${esMio ? 'mio' : 'otro'}`;
+            group.innerHTML = `
+                <div class="msg-avatar ${rol}">${inicial}</div>
+                <div class="msg-content">
+                    <div class="msg-meta">
+                        <span class="msg-autor">${nombre}</span>
+                        <span class="msg-rol ${rol}">${rol}</span>
+                    </div>
+                    <div class="burbuja">${data.contenido}</div>
+                    <div class="msg-hora">${hora}</div>
+                </div>
+            `;
+            chatMessages.appendChild(group);
+            scrollBottom();
+        }
+
+        // ── Mensaje de sistema (ej: "Resultado listo") ─────────
+        function renderSistema(texto) {
+            const div = document.createElement('div');
+            div.className = 'msg-sistema';
+            div.innerHTML = `<i class="bi bi-info-circle"></i> ${texto}`;
+            chatMessages.appendChild(div);
+            scrollBottom();
+        }
+
+        // ── WebSocket: el Integrante 3 completa esta sección ───
+        const socket = io();
+
+        socket.on('connect', () => {
+            statusDot.classList.add('connected');
+            statusText.textContent = 'Conectado';
+            socket.emit('unirse_sala', { sala: SALA });
+        });
+
+        socket.on('disconnect', () => {
+            statusDot.classList.remove('connected');
+            statusText.textContent = 'Desconectado';
+            sendBtn.disabled = true;
+        });
+
+        socket.on('nuevo_mensaje', (data) => {
+            const esMio = data.emisor_id === MI_ID;
+            renderMensaje(data, esMio);
+        });
+
+        // Notificación de resultado listo
+        socket.on('resultado_listo', (data) => {
+            renderSistema(` ${data.mensaje}`);
+        });
+
+        function enviarMensaje() {
+            const contenido = msgInput.value.trim();
+            if (!contenido) return;
+
+            socket.emit('mensaje', { sala: SALA, contenido: contenido });
+
+            msgInput.value = '';
+            msgInput.style.height = 'auto';
+            sendBtn.disabled = true;
+            msgInput.focus();
+        }
+    </script>
+
+</body>
+</html>
