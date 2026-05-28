@@ -871,6 +871,15 @@
         }
     </script>
 
+    <script>
+        window.INIT_DATA = {
+            currentUserId: {{ session.get('user_id') if session.get('user_id') is not none else 'null' }},
+            currentUserName: {{ session.get('user_name')|tojson }},
+            isTecnico: {{ 'true' if session.get('rol') == 'Tecnico' else 'false' }},
+            role: {{ session.get('rol')|tojson }}
+        };
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/examen_chat.js') }}" defer></script>
 </body>
 </html>
