@@ -31,6 +31,7 @@ app.register_blueprint(main_bp)
 import app.events as _events
 
 from app.models.mensaje import Mensaje
+from app.models.notificacion import Notificacion
 
 # Crear las tablas automáticamente en la base de datos
 with app.app_context():
@@ -47,6 +48,12 @@ with app.app_context():
             db.session.execute(text("ALTER TABLE examenes ADD COLUMN fecha_creacion DATETIME"))
             # Backfill para filas antiguas (evita None en lecturas y respeta nullable=False del modelo).
             db.session.execute(text("UPDATE examenes SET fecha_creacion = CURRENT_TIMESTAMP WHERE fecha_creacion IS NULL"))
+
+        if 'estado' not in cols:
+            db.session.execute(text("ALTER TABLE examenes ADD COLUMN estado VARCHAR(20) DEFAULT 'Pendiente' NOT NULL"))
+            
+        if 'archivo_resultado' not in cols:
+            db.session.execute(text("ALTER TABLE examenes ADD COLUMN archivo_resultado VARCHAR(255)"))
 
         db.session.commit()
     except Exception:
