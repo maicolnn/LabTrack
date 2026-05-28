@@ -11,6 +11,8 @@ class Examen(db.Model):
     tiempo_entrega = db.Column(db.String(50), nullable=False)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
     fecha_creacion = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    estado = db.Column(db.String(20), nullable=False, default='Pendiente') # 'Pendiente', 'Listo'
+    archivo_resultado = db.Column(db.String(255), nullable=True) # Ruta del archivo
     
     # Relación con Usuario
     usuario = db.relationship('Usuario', backref=db.backref('examenes', lazy=True))
