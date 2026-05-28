@@ -8,6 +8,10 @@
     const currentUserName = cfg.currentUserName || '';
     const isTecnico = !!cfg.isTecnico;
 
+    // Socket and room state
+    let socket = null;
+    let currentChatPacienteId = isTecnico ? null : currentUserId;
+
     // Helper: mostrar alertas (usa la misma UI que las plantillas)
     function mostrarAlerta(message, type='info') {
         const container = document.getElementById('alertContainer') || document.createElement('div');
@@ -144,9 +148,8 @@
 
     // ── CHAT & WEBSOCKETS ───────────────────────────
     // depende de socket.io cargado globalmente
-    if (typeof io !== 'undefined') {
-        const socket = io();
-        let currentChatPacienteId = isTecnico ? null : currentUserId;
+        if (typeof io !== 'undefined') {
+        socket = io();
 
         socket.on('connect', () => {
             console.log('WS connected');
@@ -169,12 +172,32 @@
 
         async function cargarHistorialChat(pacienteId){
             try{
-                const res = await fetch(`/mensajes/${pacienteId}`); const data = await res.json(); const chatMessages = document.getElementById('chatMessages'); if(!chatMessages) return; chatMessages.innerHTML='';
+                const res = await fetch(`/mensajes/${pacienteId}`);
+                const data = await res.json();
+                const chatMessages = document.getElementById('chatMessages'); if(!chatMessages) return; chatMessages.innerHTML='';
                 if (data.success && data.mensajes.length) data.mensajes.forEach(m=>renderizarMensaje(m)); else chatMessages.innerHTML = `<div style="text-align:center;color:var(--text-secondary);margin-top:auto;margin-bottom:auto;"><i class="bi bi-chat-quote" style="font-size:32px;display:block;margin-bottom:12px;opacity:.5"></i>No hay mensajes aún</div>`;
             }catch(e){ console.error('Error historial', e); }
         }
 
-        function enviarMensaje(){ const input=document.getElementById('chatInput'); const texto=input?.value.trim(); if(!texto || !currentChatPacienteId) return; const msgObj={ paciente_id: currentChatPacienteId, contenido: texto, remitente_id: currentUserId, remitente_nombre: currentUserName, rol: cfg.role || '' }; socket.emit('send_message', msgObj); renderizarMensaje(msgObj, true); input.value=''; }
+        function enviarMensaje(){
+            const input=document.getElementById('chatInput'); const texto=input?.value.trim();
+            if(!texto) return;
+            const msgObj = {
+                contenido: texto,
+                remitente_id: currentUserId,
+                remitente_nombre: currentUserName,
+                rol: cfg.role || ''
+            };
+            if (currentChatPacienteId) {
+                msgObj.paciente_id = currentChatPacienteId;
+            } else {
+                // nothing to send to
+                return;
+            }
+            socket.emit('send_message', msgObj);
+            renderizarMensaje(msgObj, true);
+            input.value='';
+        }
 
         document.getElementById('chatSendBtn')?.addEventListener('click', enviarMensaje);
         document.getElementById('chatInput')?.addEventListener('keypress', e => { if (e.key === 'Enter') enviarMensaje(); });
@@ -182,7 +205,13 @@
         if (isTecnico) {
             fetch('/pacientes').then(r=>r.json()).then(data=>{
                 if(data.success){ const list=document.getElementById('chatPacientesList'); if(!list) return; list.innerHTML=''; data.pacientes.forEach(p=>{
-                    const btn=document.createElement('div'); btn.style.padding='12px'; btn.style.borderBottom='1px solid rgba(255,255,255,0.05)'; btn.style.cursor='pointer'; btn.style.transition='background 0.2s'; btn.textContent=p.nombre; btn.onmouseover=()=>btn.style.background='rgba(255,255,255,0.05)'; btn.onmouseout=()=>btn.style.background='transparent'; btn.onclick=()=>{ if(currentChatPacienteId) socket.emit('leave',{paciente_id:currentChatPacienteId}); currentChatPacienteId=p.id; socket.emit('join',{paciente_id:p.id}); document.getElementById('chatHeader').textContent = `Chat con: ${p.nombre}`; document.getElementById('chatInput').disabled=false; document.getElementById('chatSendBtn').disabled=false; cargarHistorialChat(p.id); }; list.appendChild(btn);
+                    const btn=document.createElement('div'); btn.style.padding='12px'; btn.style.borderBottom='1px solid rgba(255,255,255,0.05)'; btn.style.cursor='pointer'; btn.style.transition='background 0.2s'; btn.textContent=p.nombre; btn.onmouseover=()=>btn.style.background='rgba(255,255,255,0.05)'; btn.onmouseout=()=>btn.style.background='transparent'; btn.onclick=()=>{
+                        if(currentChatPacienteId && socket) socket.emit('leave',{paciente_id:currentChatPacienteId});
+                        currentChatPacienteId=p.id; 
+                        if (socket) socket.emit('join',{paciente_id:p.id});
+                        document.getElementById('chatHeader').textContent = `Chat con: ${p.nombre}`;
+                        document.getElementById('chatInput').disabled=false; document.getElementById('chatSendBtn').disabled=false; cargarHistorialChat(p.id);
+                    }; list.appendChild(btn);
                 }); }
             }).catch(()=>{});
         }

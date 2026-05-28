@@ -257,6 +257,108 @@
             color: #f87171;
             border-color: rgba(239, 68, 68, 0.2);
         }
+        
+        /* Notificaciones Styles */
+        .notification-bell {
+            position: relative;
+            color: var(--text-primary, #eee);
+            margin-right: 16px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .notification-trigger {
+            cursor: pointer;
+            padding: 8px;
+            background: transparent;
+            border: none;
+            color: inherit;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            border-radius: 50%;
+            padding: 2px 6px;
+            display: none;
+        }
+        
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 300px;
+            background: var(--bg-secondary, #1a1a2e);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .notification-dropdown.active {
+            display: flex;
+        }
+        
+        .notification-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+        
+        .notification-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .notification-item.unread {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid #3b82f6;
+        }
+        
+        .notification-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .notification-msg {
+            font-size: 12px;
+            color: var(--text-secondary, #999);
+            margin-bottom: 4px;
+        }
+        
+        .notification-time {
+            font-size: 10px;
+            color: #6b7280;
+        }
+        
+        .badge-estado {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .badge-pendiente {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .badge-listo {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -277,6 +379,24 @@
             <button type="button" class="theme-toggle" data-theme-toggle aria-label="Cambiar tema">
                 <i class="bi bi-moon-stars"></i>
             </button>
+            <!-- Campana de Notificaciones -->
+            <div class="notification-bell">
+                <button type="button" class="notification-trigger" id="notificationBell" onclick="toggleNotificaciones()" aria-label="Ver notificaciones" aria-haspopup="true" aria-expanded="false">
+                    <i class="bi bi-bell-fill" style="font-size: 1.2rem;"></i>
+                    <span class="notification-badge" id="notificationBadge">0</span>
+                </button>
+                <div class="notification-dropdown" id="notificationDropdown">
+                    <div style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: bold; color: white;">
+                        Notificaciones
+                    </div>
+                    <div id="notificationList">
+                        <div style="padding: 20px; text-align: center; color: #999; font-size: 12px;">
+                            No tienes notificaciones
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="user-info">
                 <div class="user-name">{{ session.get('user_name', 'Usuario') }}</div>
                 {% set es_tecnico = session.get('rol') in ['Tecnico', 'Técnico'] %}
@@ -386,7 +506,7 @@
             <form id="examenForm">
                 {% if es_tecnico %}
                     <div class="form-group">
-                    <label class="form-label">Asignar a Paciente</label>
+                    <label class="form-label" for="selectPaciente">Asignar a Paciente</label>
                     <select name="usuario_id" class="form-select" required id="selectPaciente">
                         <option value="">-- Selecciona un paciente --</option>
                     </select>
@@ -394,28 +514,54 @@
                 {% endif %}
 
                 <div class="form-group">
-                    <label class="form-label">Nombre del Examen</label>
-                    <input type="text" name="nombre" class="form-input" placeholder="Ej: Análisis de sangre" required>
+                    <label class="form-label" for="nombreExamen">Nombre del Examen</label>
+                    <input type="text" id="nombreExamen" name="nombre" class="form-input" placeholder="Ej: Análisis de sangre" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Descripción</label>
-                    <textarea name="descripcion" class="form-textarea" placeholder="Describa el examen..." required></textarea>
+                    <label class="form-label" for="descripcionExamen">Descripción</label>
+                    <textarea id="descripcionExamen" name="descripcion" class="form-textarea" placeholder="Describa el examen..." required></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Precio ($)</label>
-                    <input type="number" name="precio" class="form-input" step="0.01" min="0" placeholder="Ej: 50.00" required>
+                    <label class="form-label" for="precioExamen">Precio ($)</label>
+                    <input type="number" id="precioExamen" name="precio" class="form-input" step="0.01" min="0" placeholder="Ej: 50.00" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Tiempo de Entrega</label>
-                    <input type="text" name="tiempo_entrega" class="form-input" placeholder="Ej: 24 horas" required>
+                    <label class="form-label" for="tiempoEntregaExamen">Tiempo de Entrega</label>
+                    <input type="text" id="tiempoEntregaExamen" name="tiempo_entrega" class="form-input" placeholder="Ej: 24 horas" required>
                 </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
                     <button type="submit" class="btn-primary">Guardar Examen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Subir Resultado -->
+    <div class="modal" id="uploadModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Subir Resultado</h2>
+                <button class="modal-close" onclick="cerrarUploadModal()">&times;</button>
+            </div>
+            
+            <form id="uploadForm" enctype="multipart/form-data">
+                <input type="hidden" id="uploadExamenId" name="examen_id">
+                
+                <div class="form-group">
+                    <label class="form-label" for="archivoResultado">Archivo de Resultado (PDF, JPG, PNG)</label>
+                    <input type="file" id="archivoResultado" name="archivo" class="form-input" accept=".pdf,.png,.jpg,.jpeg" required style="padding-top: 6px;">
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="cerrarUploadModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary">
+                        <i class="bi bi-upload"></i> Subir
+                    </button>
                 </div>
             </form>
         </div>
@@ -529,11 +675,8 @@
                     html += '<th>Descripción</th>';
                     html += '<th>Precio</th>';
                     html += '<th>Tiempo de Entrega</th>';
-                    
-                    if (isTecnico) {
-                        html += '<th style="text-align: center;">Acciones</th>';
-                    }
-                    
+                    html += '<th>Estado</th>';
+                    html += '<th style="text-align: center;">Acciones</th>';
                     html += '</tr></thead>';
                     html += '<tbody>';
 
@@ -549,20 +692,50 @@
                             <td>$${parseFloat(examen.precio).toFixed(2)}</td>
                             <td>${examen.tiempo_entrega}</td>`;
                         
+                        const badgeClass = examen.estado === 'Listo' ? 'badge-listo' : 'badge-pendiente';
+                        html += `<td><span class="badge-estado ${badgeClass}">${examen.estado}</span></td>`;
+                        
                         if (isTecnico) {
                             html += `<td style="text-align: center;">
-                                <div class="action-buttons">
-                                    <button class="btn-edit" onclick="editarExamen(${examen.id})">
-                                        <i class="bi bi-pencil"></i> Editar
+                                <div class="action-buttons" style="justify-content: center;">`;
+
+                            html += `
+                                    <button class="btn-edit" onclick="editarExamen(${examen.id})" title="Editar">
+                                        <i class="bi bi-pencil"></i>
                                     </button>
-                                    <button class="btn-delete" onclick="eliminarExamen(${examen.id})">
-                                        <i class="bi bi-trash"></i> Eliminar
-                                    </button>
-                                </div>
-                            </td>`;
+                                    <button class="btn-delete" onclick="eliminarExamen(${examen.id})" title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </button>`;
+
+                            if (examen.estado === 'Pendiente') {
+                                html += `
+                                    <button class="btn-add" onclick="abrirSubirResultado(${examen.id})" style="padding: 6px 12px; font-size: 12px;">
+                                        <i class="bi bi-upload"></i> Subir Resultado
+                                    </button>`;
+                            }
+
+                            if (examen.estado === 'Listo' && examen.archivo_resultado) {
+                                html += `
+                                    <a href="${examen.archivo_resultado}" target="_blank" class="btn-primary" style="text-decoration: none; padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;">
+                                        <i class="bi bi-download"></i> Descargar
+                                    </a>`;
+                            }
+
+                            html += `</div></td>`;
+                        } else {
+                            html += `<td style="text-align: center;">`;
+                            if (examen.estado === 'Listo' && examen.archivo_resultado) {
+                                html += `
+                                    <a href="${examen.archivo_resultado}" target="_blank" class="btn-primary" style="text-decoration: none; padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;">
+                                        <i class="bi bi-download"></i> Descargar
+                                    </a>`;
+                            } else {
+                                html += '<span style="color: var(--text-secondary); font-size: 13px;">Sin acciones disponibles</span>';
+                            }
+                            html += `</td>`;
                         }
-                        
-                        html += '</tr>';
+
+                        html += `</tr>`;
                     });
 
                     html += '</tbody></table></div>';
@@ -668,10 +841,14 @@
 
         // ======================= WEBSOCKETS CHAT & NOTIFICATIONS =======================
         const socket = io();
-        let currentChatPacienteId = {% if not es_tecnico %}{{ session.get('user_id') }}{% else %}null{% endif %};
+        const currentUserId = {{ session.get('user_id') | tojson }};
+        let currentChatPacienteId = {% if not es_tecnico %}{{ session.get('user_id') | tojson }}{% else %}null{% endif %};
 
         socket.on('connect', () => {
             console.log('Conectado a WebSockets');
+            if (currentUserId) {
+                socket.emit('join', { usuario_id: currentUserId });
+            }
             if (currentChatPacienteId) {
                 socket.emit('join', { paciente_id: currentChatPacienteId });
                 cargarHistorialChat(currentChatPacienteId);
@@ -775,6 +952,153 @@
             if (e.key === 'Enter') enviarMensaje();
         });
 
+        // Modal Subir Resultado
+        function abrirSubirResultado(id) {
+            document.getElementById('uploadExamenId').value = id;
+            document.getElementById('uploadModal').classList.add('active');
+        }
+
+        function cerrarUploadModal() {
+            document.getElementById('uploadModal').classList.remove('active');
+            document.getElementById('uploadForm').reset();
+        }
+
+        document.getElementById('uploadForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const examenId = document.getElementById('uploadExamenId').value;
+            const formData = new FormData(document.getElementById('uploadForm'));
+
+            try {
+                const response = await fetch(`/examenes/${examenId}/resultado`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const resultado = await response.json();
+                if (resultado.success) {
+                    mostrarAlerta(resultado.mensaje, 'success');
+                    cerrarUploadModal();
+                    cargarExamenes();
+                } else {
+                    mostrarAlerta(resultado.error, 'danger');
+                }
+            } catch (error) {
+                mostrarAlerta('Error: ' + error.message, 'danger');
+            }
+        });
+
+        // Notificaciones UI
+        function toggleNotificaciones() {
+            const dropdown = document.getElementById('notificationDropdown');
+            const bell = document.getElementById('notificationBell');
+            const isOpen = dropdown.classList.toggle('active');
+            bell?.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        }
+
+        // Cerrar dropdown al hacer click fuera
+        document.addEventListener('click', (e) => {
+            const bell = document.getElementById('notificationBell');
+            const dropdown = document.getElementById('notificationDropdown');
+            if (bell && dropdown && !bell.contains(e.target)) {
+                dropdown.classList.remove('active');
+                bell.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        let notificacionesCount = 0;
+        
+        async function cargarNotificaciones() {
+            try {
+                const response = await fetch('/notificaciones');
+                const data = await response.json();
+                if (data.success) {
+                    renderizarNotificaciones(data.notificaciones);
+                }
+            } catch (e) {
+                console.error("Error cargando notificaciones", e);
+            }
+        }
+
+        function renderizarNotificaciones(notificaciones) {
+            const list = document.getElementById('notificationList');
+            const badge = document.getElementById('notificationBadge');
+            
+            notificacionesCount = notificaciones.length;
+            
+            if (notificacionesCount > 0) {
+                badge.textContent = notificacionesCount;
+                badge.style.display = 'block';
+                list.innerHTML = '';
+                
+                notificaciones.forEach(n => {
+                    const item = document.createElement('div');
+                    item.className = 'notification-item unread';
+                    item.innerHTML = `
+                        <div class="notification-title">${n.titulo}</div>
+                        <div class="notification-msg">${n.mensaje}</div>
+                        <div class="notification-time">${n.fecha}</div>
+                    `;
+                    item.onclick = () => marcarNotificacionLeida(n.id, item);
+                    list.appendChild(item);
+                });
+            } else {
+                badge.style.display = 'none';
+                list.innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: #999; font-size: 12px;">
+                        No tienes notificaciones
+                    </div>
+                `;
+            }
+        }
+
+        async function marcarNotificacionLeida(id, element) {
+            try {
+                const response = await fetch(`/notificaciones/${id}/leer`, { method: 'PUT' });
+                if (response.ok) {
+                    element.classList.remove('unread');
+                    notificacionesCount = Math.max(0, notificacionesCount - 1);
+                    const badge = document.getElementById('notificationBadge');
+                    if (notificacionesCount > 0) {
+                        badge.textContent = notificacionesCount;
+                    } else {
+                        badge.style.display = 'none';
+                        setTimeout(cargarNotificaciones, 500); // recargar para mostrar "No tienes"
+                    }
+                }
+            } catch (e) {
+                console.error("Error al marcar como leída", e);
+            }
+        }
+
+        socket.on('nueva_notificacion_data', (notif) => {
+            const list = document.getElementById('notificationList');
+            const badge = document.getElementById('notificationBadge');
+            
+            // Si estaba vacío, limpiar el mensaje de "no tienes"
+            if (notificacionesCount === 0) {
+                list.innerHTML = '';
+            }
+            
+            const item = document.createElement('div');
+            item.className = 'notification-item unread';
+            item.innerHTML = `
+                <div class="notification-title">${notif.titulo}</div>
+                <div class="notification-msg">${notif.mensaje}</div>
+                <div class="notification-time">${notif.fecha}</div>
+            `;
+            item.onclick = () => marcarNotificacionLeida(notif.id, item);
+            list.insertBefore(item, list.firstChild);
+            
+            notificacionesCount++;
+            badge.textContent = notificacionesCount;
+            badge.style.display = 'block';
+            
+            // Refrescar exámenes por si hay un nuevo archivo disponible
+            cargarExamenes();
+        });
+
+        // Inicializar notificaciones
+        document.addEventListener('DOMContentLoaded', cargarNotificaciones);
+
         // Lógica Técnico: Cargar lista de pacientes para chat
         if (isTecnico) {
             fetch('/pacientes').then(r => r.json()).then(data => {
@@ -785,6 +1109,7 @@
                         const btn = document.createElement('div');
                         btn.style.padding = '12px';
                         btn.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+                        btn.style.borderRadius = '10px';
                         btn.style.cursor = 'pointer';
                         btn.style.transition = 'background 0.2s';
                         btn.textContent = p.nombre;

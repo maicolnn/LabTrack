@@ -1,8 +1,11 @@
-from flask import Blueprint, render_template, request, jsonify, session
+from flask import Blueprint, render_template, request, jsonify, session, current_app, url_for
+import os
+from werkzeug.utils import secure_filename
 from app.utils.decorators import login_required, tecnico_required
 from app.models.usuario import db, Usuario
 from app.models.examen import Examen
 from app.models.mensaje import Mensaje
+from app.models.notificacion import Notificacion
 from app.extensions import socketio
 
 main_bp = Blueprint('main', __name__)
@@ -81,7 +84,9 @@ def obtener_examenes():
                 'tiempo_entrega': examen.tiempo_entrega,
                 'usuario_id': examen.usuario_id,
                 'usuario_nombre': examen.usuario.nombre if examen.usuario else 'Sin asignar',
-                'fecha_creacion': examen.fecha_creacion.strftime('%Y-%m-%d %H:%M') if examen.fecha_creacion else ''
+                'fecha_creacion': examen.fecha_creacion.strftime('%Y-%m-%d %H:%M') if examen.fecha_creacion else '',
+                'estado': examen.estado,
+                'archivo_resultado': url_for('static', filename=f'uploads/resultados/{examen.archivo_resultado}') if examen.archivo_resultado else None
             }
             for examen in examenes
         ]
@@ -132,7 +137,9 @@ def obtener_examen(examen_id):
                 'tiempo_entrega': examen.tiempo_entrega,
                 'usuario_id': examen.usuario_id,
                 'usuario_nombre': examen.usuario.nombre if examen.usuario else 'Sin asignar',
-                'fecha_creacion': examen.fecha_creacion.strftime('%Y-%m-%d %H:%M') if examen.fecha_creacion else ''
+                'fecha_creacion': examen.fecha_creacion.strftime('%Y-%m-%d %H:%M') if examen.fecha_creacion else '',
+                'estado': examen.estado,
+                'archivo_resultado': url_for('static', filename=f'uploads/resultados/{examen.archivo_resultado}') if examen.archivo_resultado else None
             }
         }), 200
     except Exception as e:
@@ -142,23 +149,11 @@ def obtener_examen(examen_id):
         }), 500
 
 
-# CREATE - Crear un nuevo examen (solo Técnicos)
+# CREATE - Crear un nuevo examen 
 @main_bp.route('/examenes', methods=['POST'])
 @tecnico_required
 def crear_examen():
-    """
-    Crea un nuevo examen asignado a un paciente específico.
-    Solo accesible para usuarios con rol 'Tecnico'
     
-    JSON esperado:
-    {
-        "nombre": "string",
-        "descripcion": "string",
-        "precio": float,
-        "tiempo_entrega": "string",
-        "usuario_id": integer (ID del paciente)
-    }
-    """
     try:
         data = request.get_json()
         
@@ -214,10 +209,26 @@ def crear_examen():
         db.session.add(nuevo_examen)
         db.session.commit()
         
+        mensaje_notif = f'Te han asignado un nuevo examen: {nuevo_examen.nombre}'
+        nueva_notif = crear_notificacion_usuario(
+            usuario_id,
+            'Nuevo Examen',
+            mensaje_notif,
+            'success'
+        )
+
         socketio.emit('notificacion', {
-            'titulo': 'Nuevo Examen',
-            'mensaje': f'Te han asignado un nuevo examen: {nuevo_examen.nombre}',
-            'tipo': 'success'
+            'titulo': nueva_notif.titulo,
+            'mensaje': nueva_notif.mensaje,
+            'tipo': nueva_notif.tipo
+        }, room=f"paciente_{usuario_id}")
+
+        socketio.emit('nueva_notificacion_data', {
+            'id': nueva_notif.id,
+            'titulo': nueva_notif.titulo,
+            'mensaje': nueva_notif.mensaje,
+            'tipo': nueva_notif.tipo,
+            'fecha': nueva_notif.fecha_creacion.strftime('%Y-%m-%d %H:%M')
         }, room=f"paciente_{usuario_id}")
         
         return jsonify({
@@ -231,7 +242,9 @@ def crear_examen():
                 'tiempo_entrega': nuevo_examen.tiempo_entrega,
                 'usuario_id': nuevo_examen.usuario_id,
                 'usuario_nombre': nuevo_examen.usuario.nombre if nuevo_examen.usuario else 'Sin asignar',
-                'fecha_creacion': nuevo_examen.fecha_creacion.strftime('%Y-%m-%d %H:%M') if nuevo_examen.fecha_creacion else ''
+                'fecha_creacion': nuevo_examen.fecha_creacion.strftime('%Y-%m-%d %H:%M') if nuevo_examen.fecha_creacion else '',
+                'estado': nuevo_examen.estado,
+                'archivo_resultado': None
             }
         }), 201
     
@@ -247,19 +260,7 @@ def crear_examen():
 @main_bp.route('/examenes/<int:examen_id>', methods=['PUT', 'POST'])
 @tecnico_required
 def actualizar_examen(examen_id):
-    """
-    Actualiza los datos de un examen existente.
-    Solo accesible para usuarios con rol 'Tecnico'
     
-    JSON esperado (solo incluir los campos a actualizar):
-    {
-        "nombre": "string",
-        "descripcion": "string",
-        "precio": float,
-        "tiempo_entrega": "string",
-        "usuario_id": integer (opcional, para reasignar a otro paciente)
-    }
-    """
     try:
         examen = Examen.query.get(examen_id)
         if not examen:
@@ -330,10 +331,26 @@ def actualizar_examen(examen_id):
         
         db.session.commit()
         
+        mensaje_notif = f'El examen "{examen.nombre}" ha sido actualizado.'
+        nueva_notif = crear_notificacion_usuario(
+            examen.usuario_id,
+            'Examen Actualizado',
+            mensaje_notif,
+            'info'
+        )
+
         socketio.emit('notificacion', {
-            'titulo': 'Examen Actualizado',
-            'mensaje': f'El examen "{examen.nombre}" ha sido actualizado.',
-            'tipo': 'info'
+            'titulo': nueva_notif.titulo,
+            'mensaje': nueva_notif.mensaje,
+            'tipo': nueva_notif.tipo
+        }, room=f"paciente_{examen.usuario_id}")
+
+        socketio.emit('nueva_notificacion_data', {
+            'id': nueva_notif.id,
+            'titulo': nueva_notif.titulo,
+            'mensaje': nueva_notif.mensaje,
+            'tipo': nueva_notif.tipo,
+            'fecha': nueva_notif.fecha_creacion.strftime('%Y-%m-%d %H:%M')
         }, room=f"paciente_{examen.usuario_id}")
         
         return jsonify({
@@ -347,7 +364,9 @@ def actualizar_examen(examen_id):
                 'tiempo_entrega': examen.tiempo_entrega,
                 'usuario_id': examen.usuario_id,
                 'usuario_nombre': examen.usuario.nombre if examen.usuario else 'Sin asignar',
-                'fecha_creacion': examen.fecha_creacion.strftime('%Y-%m-%d %H:%M') if examen.fecha_creacion else ''
+                'fecha_creacion': examen.fecha_creacion.strftime('%Y-%m-%d %H:%M') if examen.fecha_creacion else '',
+                'estado': examen.estado,
+                'archivo_resultado': url_for('static', filename=f'uploads/resultados/{examen.archivo_resultado}') if examen.archivo_resultado else None
             }
         }), 200
     
@@ -359,13 +378,11 @@ def actualizar_examen(examen_id):
         }), 500
 
 
-# DELETE - Eliminar un examen (solo Técnicos)
+# DELETE - Eliminar un examen 
 @main_bp.route('/examenes/<int:examen_id>', methods=['DELETE'])
 @tecnico_required
 def eliminar_examen(examen_id):
-    """
-    Elimina un examen. Solo accesible para usuarios con rol 'Tecnico'
-    """
+   
     try:
         examen = Examen.query.get(examen_id)
         if not examen:
@@ -378,10 +395,26 @@ def eliminar_examen(examen_id):
         db.session.delete(examen)
         db.session.commit()
         
+        mensaje_notif = f'El examen "{nombre_examen}" ha sido eliminado.'
+        nueva_notif = crear_notificacion_usuario(
+            examen.usuario_id,
+            'Examen Eliminado',
+            mensaje_notif,
+            'warning'
+        )
+
         socketio.emit('notificacion', {
-            'titulo': 'Examen Eliminado',
-            'mensaje': f'El examen "{nombre_examen}" ha sido eliminado.',
-            'tipo': 'warning'
+            'titulo': nueva_notif.titulo,
+            'mensaje': nueva_notif.mensaje,
+            'tipo': nueva_notif.tipo
+        }, room=f"paciente_{examen.usuario_id}")
+
+        socketio.emit('nueva_notificacion_data', {
+            'id': nueva_notif.id,
+            'titulo': nueva_notif.titulo,
+            'mensaje': nueva_notif.mensaje,
+            'tipo': nueva_notif.tipo,
+            'fecha': nueva_notif.fecha_creacion.strftime('%Y-%m-%d %H:%M')
         }, room=f"paciente_{examen.usuario_id}")
         
         return jsonify({
@@ -395,6 +428,19 @@ def eliminar_examen(examen_id):
             'success': False,
             'error': str(e)
         }), 500
+
+
+def crear_notificacion_usuario(usuario_id, titulo, mensaje, tipo='info'):
+    """Crear una notificación persistente y devolver el registro creado."""
+    nueva_notif = Notificacion(
+        usuario_id=usuario_id,
+        titulo=titulo,
+        mensaje=mensaje,
+        tipo=tipo
+    )
+    db.session.add(nueva_notif)
+    db.session.commit()
+    return nueva_notif
 
 # ======================== RUTAS DEL CHAT ========================
 
@@ -431,3 +477,103 @@ def obtener_mensajes(paciente_id):
             'success': False,
             'error': str(e)
         }), 500
+
+
+# ======================== RUTAS DE ARCHIVOS Y NOTIFICACIONES ========================
+
+@main_bp.route('/examenes/<int:examen_id>/resultado', methods=['POST'])
+@tecnico_required
+def subir_resultado(examen_id):
+    """Subir archivo de resultado para un examen"""
+    try:
+        examen = Examen.query.get(examen_id)
+        if not examen:
+            return jsonify({'success': False, 'error': 'Examen no encontrado'}), 404
+
+        if 'archivo' not in request.files:
+            return jsonify({'success': False, 'error': 'No se proporcionó ningún archivo'}), 400
+
+        archivo = request.files['archivo']
+        if archivo.filename == '':
+            return jsonify({'success': False, 'error': 'Nombre de archivo vacío'}), 400
+
+        # Crear directorio si no existe
+        upload_folder = os.path.join(current_app.static_folder, 'uploads', 'resultados')
+        os.makedirs(upload_folder, exist_ok=True)
+
+        filename = secure_filename(f"{examen_id}_{archivo.filename}")
+        file_path = os.path.join(upload_folder, filename)
+        archivo.save(file_path)
+
+        examen.archivo_resultado = filename
+        examen.estado = 'Listo'
+        
+        # Crear notificación persistente
+        mensaje_notif = f'El resultado para tu examen "{examen.nombre}" ya está listo para descargar.'
+        nueva_notif = crear_notificacion_usuario(
+            examen.usuario_id,
+            'Resultado de Examen Listo',
+            mensaje_notif,
+            'success'
+        )
+
+        # Emitir por socket
+        socketio.emit('notificacion', {
+            'titulo': 'Resultado de Examen Listo',
+            'mensaje': mensaje_notif,
+            'tipo': 'success'
+        }, room=f"paciente_{examen.usuario_id}")
+        
+        # Emitir evento para actualizar campanita
+        socketio.emit('nueva_notificacion_data', {
+            'id': nueva_notif.id,
+            'titulo': nueva_notif.titulo,
+            'mensaje': nueva_notif.mensaje,
+            'tipo': nueva_notif.tipo,
+            'fecha': nueva_notif.fecha_creacion.strftime('%Y-%m-%d %H:%M')
+        }, room=f"paciente_{examen.usuario_id}")
+
+        return jsonify({'success': True, 'mensaje': 'Resultado subido correctamente'}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@main_bp.route('/notificaciones', methods=['GET'])
+@login_required
+def obtener_notificaciones():
+    """Obtener notificaciones del usuario actual"""
+    try:
+        user_id = session.get('user_id')
+        # Obtener notificaciones no leídas
+        notificaciones = Notificacion.query.filter_by(usuario_id=user_id, leida=False).order_by(Notificacion.fecha_creacion.desc()).all()
+        
+        notif_list = [{
+            'id': n.id,
+            'titulo': n.titulo,
+            'mensaje': n.mensaje,
+            'tipo': n.tipo,
+            'fecha': n.fecha_creacion.strftime('%Y-%m-%d %H:%M')
+        } for n in notificaciones]
+        
+        return jsonify({'success': True, 'notificaciones': notif_list}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@main_bp.route('/notificaciones/<int:notificacion_id>/leer', methods=['PUT'])
+@login_required
+def marcar_notificacion_leida(notificacion_id):
+    """Marcar una notificación como leída"""
+    try:
+        user_id = session.get('user_id')
+        notificacion = Notificacion.query.get(notificacion_id)
+        
+        if not notificacion or notificacion.usuario_id != user_id:
+            return jsonify({'success': False, 'error': 'Notificación no encontrada o sin acceso'}), 404
+            
+        notificacion.leida = True
+        db.session.commit()
+        return jsonify({'success': True}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
