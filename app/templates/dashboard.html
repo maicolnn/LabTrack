@@ -6,317 +6,253 @@
     <title>Dashboard - LabTrack</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-    <script defer src="{{ url_for('static', filename='js/theme.js') }}"></script>
+<<<<<<< HEAD
+    <!-- Socket.IO Client Script -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <style>
-        /* ── Stats cards ───────────────────────────── */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        .stat-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 20px 24px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        .stat-icon {
-            width: 48px; height: 48px;
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 22px;
-            flex-shrink: 0;
-        }
-        .stat-icon.purple { background: rgba(168,85,247,.15); color: #c084fc; }
-        .stat-icon.indigo { background: rgba(99,102,241,.15); color: #818cf8; }
-        .stat-icon.green  { background: rgba(16,185,129,.15);  color: #34d399; }
-        .stat-icon.amber  { background: rgba(245,158,11,.15);  color: #fbbf24; }
-        .stat-num  { font-size: 26px; font-weight: 700; color: var(--text-primary); line-height: 1; }
-        .stat-label{ font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
-
-        /* ── Toolbar sobre la tabla ─────────────────── */
-        .table-toolbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        .search-box {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255,255,255,.04);
-            border: 1px solid var(--card-border);
-            border-radius: 10px;
-            padding: 0 14px;
-            flex: 1;
-            max-width: 320px;
-        }
-        .search-box i { color: var(--text-secondary); font-size: 16px; }
-        .search-box input {
-            background: transparent;
-            border: none;
-            outline: none;
-            color: var(--text-primary);
-            font-size: 14px;
-            font-family: 'Outfit', sans-serif;
-            padding: 10px 0;
-            width: 100%;
-        }
-        .search-box input::placeholder { color: var(--text-secondary); }
-
-        .btn-primary-lab {
-            display: inline-flex; align-items: center; gap: 8px;
-            background: linear-gradient(135deg, #6366f1, #4f46e5);
-            color: white; border: none; border-radius: 10px;
-            padding: 10px 18px; font-size: 14px; font-weight: 600;
-            cursor: pointer; font-family: 'Outfit', sans-serif;
-            box-shadow: 0 4px 12px rgba(99,102,241,.25);
-            transition: all .2s ease; text-decoration: none;
-        }
-        .btn-primary-lab:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(99,102,241,.4); color: white; text-decoration: none; }
-
-        /* ── Tabla ──────────────────────────────────── */
-        .table-wrap {
+        .table-container {
             overflow-x: auto;
             border-radius: 12px;
-            border: 1px solid var(--card-border);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-        thead {
-            background: rgba(255,255,255,.03);
-            border-bottom: 1px solid var(--card-border);
-        }
-        th {
-            padding: 14px 16px;
-            text-align: left;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: .06em;
-            white-space: nowrap;
-        }
-        td {
-            padding: 14px 16px;
-            border-bottom: 1px solid rgba(255,255,255,.04);
-            color: var(--text-primary);
-            vertical-align: middle;
-        }
-        tbody tr:last-child td { border-bottom: none; }
-        tbody tr { transition: background .15s; }
-        tbody tr:hover { background: rgba(255,255,255,.02); }
+        
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+        <!-- Socket.IO Client Script -->
+        <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+        <script defer src="{{ url_for('static', filename='js/theme.js') }}"></script>
+        <style>
+            /* ── Stats cards ───────────────────────────── */
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 16px;
+                margin-bottom: 24px;
+            }
+            .stat-card {
+                background: var(--card-bg);
+                backdrop-filter: blur(20px);
+                border: 1px solid var(--card-border);
+                border-radius: 16px;
+                padding: 20px 24px;
+                display: flex;
+                align-items: center;
+                gap: 16px;
+            }
+            .stat-icon {
+                width: 48px; height: 48px;
+                border-radius: 12px;
+                display: flex; align-items: center; justify-content: center;
+                font-size: 22px;
+                flex-shrink: 0;
+            }
+            .stat-icon.purple { background: rgba(168,85,247,.15); color: #c084fc; }
+            .stat-icon.indigo { background: rgba(99,102,241,.15); color: #818cf8; }
+            .stat-icon.green  { background: rgba(16,185,129,.15);  color: #34d399; }
+            .stat-icon.amber  { background: rgba(245,158,11,.15);  color: #fbbf24; }
+            .stat-num  { font-size: 26px; font-weight: 700; color: var(--text-primary); line-height: 1; }
+            .stat-label{ font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
 
-        .exam-name { font-weight: 600; }
-        .exam-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
-        .precio-badge {
-            background: rgba(16,185,129,.1); color: #34d399;
-            border: 1px solid rgba(16,185,129,.2);
-            padding: 3px 10px; border-radius: 20px;
-            font-size: 13px; font-weight: 600;
-        }
-        .tiempo-badge {
-            background: rgba(245,158,11,.1); color: #fbbf24;
-            border: 1px solid rgba(245,158,11,.2);
-            padding: 3px 10px; border-radius: 20px;
-            font-size: 12px; font-weight: 500;
-        }
-        .activo-badge {
-            display: inline-flex; align-items: center; gap: 5px;
-            font-size: 12px; font-weight: 500;
-            padding: 3px 10px; border-radius: 20px;
-        }
-        .activo-badge.activo  { background: rgba(16,185,129,.1);  color: #34d399; border: 1px solid rgba(16,185,129,.2); }
-        .activo-badge.inactivo{ background: rgba(239,68,68,.1);    color: #f87171; border: 1px solid rgba(239,68,68,.2); }
+            /* ── Toolbar sobre la tabla ─────────────────── */
+            .table-toolbar {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                margin-bottom: 20px;
+                flex-wrap: wrap;
+            }
+            .search-box {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                background: rgba(255,255,255,.04);
+                border: 1px solid var(--card-border);
+                border-radius: 10px;
+                padding: 0 14px;
+                flex: 1;
+                max-width: 320px;
+            }
+            .search-box i { color: var(--text-secondary); font-size: 16px; }
+            .search-box input {
+                background: transparent;
+                border: none;
+                outline: none;
+                color: var(--text-primary);
+                font-size: 14px;
+                font-family: 'Outfit', sans-serif;
+                padding: 10px 0;
+                width: 100%;
+            }
+            .search-box input::placeholder { color: var(--text-secondary); }
 
-        /* Botones de acción en tabla */
-        .actions { display: flex; gap: 6px; }
-        .btn-accion {
-            width: 32px; height: 32px;
-            border-radius: 8px; border: 1px solid var(--card-border);
-            background: rgba(255,255,255,.03);
-            color: var(--text-secondary);
-            cursor: pointer; font-size: 15px;
-            display: flex; align-items: center; justify-content: center;
-            transition: all .2s; text-decoration: none;
-        }
-        .btn-accion:hover.edit   { background: rgba(99,102,241,.15); color: #818cf8; border-color: rgba(99,102,241,.3); }
-        .btn-accion:hover.delete { background: rgba(239,68,68,.15);  color: #f87171; border-color: rgba(239,68,68,.3); }
-        .btn-accion:hover.chat   { background: rgba(16,185,129,.15); color: #34d399; border-color: rgba(16,185,129,.3); }
+            .btn-primary-lab {
+                display: inline-flex; align-items: center; gap: 8px;
+                background: linear-gradient(135deg, #6366f1, #4f46e5);
+                color: white; border: none; border-radius: 10px;
+                padding: 10px 18px; font-size: 14px; font-weight: 600;
+                cursor: pointer; font-family: 'Outfit', sans-serif;
+                box-shadow: 0 4px 12px rgba(99,102,241,.25);
+                transition: all .2s ease; text-decoration: none;
+            }
+            .btn-primary-lab:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(99,102,241,.4); color: white; text-decoration: none; }
 
-        /* Fila vacía */
-        .empty-row td {
-            text-align: center;
-            padding: 48px;
-            color: var(--text-secondary);
-        }
-        .empty-row i { font-size: 36px; display: block; margin-bottom: 10px; color: rgba(99,102,241,.3); }
+            /* ── Tabla ──────────────────────────────────── */
+            .table-wrap {
+                overflow-x: auto;
+                border-radius: 12px;
+                border: 1px solid var(--card-border);
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 14px;
+            }
+            thead {
+                background: rgba(255,255,255,.03);
+                border-bottom: 1px solid var(--card-border);
+            }
+            th {
+                padding: 14px 16px;
+                text-align: left;
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--text-secondary);
+                text-transform: uppercase;
+                letter-spacing: .06em;
+                white-space: nowrap;
+            }
+            td {
+                padding: 14px 16px;
+                border-bottom: 1px solid rgba(255,255,255,.04);
+                color: var(--text-primary);
+                vertical-align: middle;
+            }
+            tbody tr:last-child td { border-bottom: none; }
+            tbody tr { transition: background .15s; }
+            tbody tr:hover { background: rgba(255,255,255,.02); }
 
-        /* ── Modal ──────────────────────────────────── */
-        .modal-backdrop {
-            display: none;
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,.6);
-            backdrop-filter: blur(6px);
-            z-index: 200;
-            align-items: center; justify-content: center;
-        }
-        .modal-backdrop.open { display: flex; }
-        .modal {
-            background: #111827;
-            border: 1px solid var(--card-border);
-            border-radius: 20px;
-            padding: 32px;
-            width: 100%; max-width: 480px;
-            animation: modalIn .25s ease;
-            margin: 24px;
-        }
-        @keyframes modalIn {
-            from { opacity: 0; transform: scale(.95) translateY(10px); }
-            to   { opacity: 1; transform: scale(1)  translateY(0); }
-        }
-        .modal-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 24px;
-        }
-        .modal-title { font-size: 18px; font-weight: 700; }
-        .modal-close {
-            width: 32px; height: 32px; border-radius: 8px;
-            border: 1px solid var(--card-border);
-            background: rgba(255,255,255,.03);
-            color: var(--text-secondary);
-            cursor: pointer; font-size: 18px;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .modal-close:hover { color: var(--text-primary); background: rgba(255,255,255,.07); }
+            .exam-name { font-weight: 600; }
+            .exam-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+            .precio-badge {
+                background: rgba(16,185,129,.1); color: #34d399;
+                border: 1px solid rgba(16,185,129,.2);
+                padding: 3px 10px; border-radius: 20px;
+                font-size: 13px; font-weight: 600;
+            }
+            .tiempo-badge {
+                background: rgba(245,158,11,.1); color: #fbbf24;
+                border: 1px solid rgba(245,158,11,.2);
+                padding: 3px 10px; border-radius: 20px;
+                font-size: 12px; font-weight: 500;
+            }
+            .activo-badge {
+                display: inline-flex; align-items: center; gap: 5px;
+                font-size: 12px; font-weight: 500;
+                padding: 3px 10px; border-radius: 20px;
+            }
+            .activo-badge.activo  { background: rgba(16,185,129,.1);  color: #34d399; border: 1px solid rgba(16,185,129,.2); }
+            .activo-badge.inactivo{ background: rgba(239,68,68,.1);    color: #f87171; border: 1px solid rgba(239,68,68,.2); }
 
-        .modal .form-group { margin-bottom: 16px; }
-        .modal label {
-            display: block; font-size: 13px; font-weight: 500;
-            color: var(--text-secondary); margin-bottom: 6px;
-        }
-        .modal input, .modal textarea, .modal select {
-            width: 100%;
-            background: rgba(255,255,255,.04);
-            border: 1px solid rgba(255,255,255,.08);
-            border-radius: 10px;
-            padding: 11px 14px;
-            color: var(--text-primary);
-            font-size: 14px; font-family: 'Outfit', sans-serif;
-            transition: border-color .2s, box-shadow .2s;
-        }
-        .modal input:focus, .modal textarea:focus, .modal select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99,102,241,.15);
-        }
-        .modal textarea { resize: vertical; min-height: 80px; }
-        .modal select option { background: #111827; }
-        .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
-        .btn-cancel {
-            padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 500;
-            border: 1px solid var(--card-border); background: transparent;
-            color: var(--text-secondary); cursor: pointer; font-family: 'Outfit', sans-serif;
-            transition: all .2s;
-        }
-        .btn-cancel:hover { background: rgba(255,255,255,.05); color: var(--text-primary); }
-        .invalid-feedback { color: #f87171; font-size: 12px; margin-top: 5px; display: none; }
-        .is-invalid { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,.15) !important; }
+            /* Botones de acción en tabla */
+            .actions { display: flex; gap: 6px; }
+            .btn-accion {
+                width: 32px; height: 32px;
+                border-radius: 8px; border: 1px solid var(--card-border);
+                background: rgba(255,255,255,.03);
+                color: var(--text-secondary);
+                cursor: pointer; font-size: 15px;
+                display: flex; align-items: center; justify-content: center;
+                transition: all .2s; text-decoration: none;
+            }
+            .btn-accion:hover.edit   { background: rgba(99,102,241,.15); color: #818cf8; border-color: rgba(99,102,241,.3); }
+            .btn-accion:hover.delete { background: rgba(239,68,68,.15);  color: #f87171; border-color: rgba(239,68,68,.3); }
+            .btn-accion:hover.chat   { background: rgba(16,185,129,.15); color: #34d399; border-color: rgba(16,185,129,.3); }
 
-        /* ── Vista paciente: tabla de citas ─────────── */
-        .resultado-disponible {
-            display: inline-flex; align-items: center; gap: 5px;
-            background: rgba(16,185,129,.1); color: #34d399;
-            border: 1px solid rgba(16,185,129,.2);
-            padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500;
-        }
-        .resultado-pendiente {
-            display: inline-flex; align-items: center; gap: 5px;
-            background: rgba(245,158,11,.1); color: #fbbf24;
-            border: 1px solid rgba(245,158,11,.2);
-            padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500;
-        }
-        .cita-estado {
-            padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500;
-        }
-        .cita-estado.pendiente  { background: rgba(245,158,11,.1);  color: #fbbf24; border: 1px solid rgba(245,158,11,.2); }
-        .cita-estado.confirmada { background: rgba(99,102,241,.1);  color: #818cf8; border: 1px solid rgba(99,102,241,.2); }
-        .cita-estado.completada { background: rgba(16,185,129,.1);  color: #34d399; border: 1px solid rgba(16,185,129,.2); }
-        .cita-estado.cancelada  { background: rgba(239,68,68,.1);   color: #f87171; border: 1px solid rgba(239,68,68,.2); }
+            /* Fila vacía */
+            .empty-row td {
+                text-align: center;
+                padding: 48px;
+                color: var(--text-secondary);
+            }
+            .empty-row i { font-size: 36px; display: block; margin-bottom: 10px; color: rgba(99,102,241,.3); }
 
-        /* Notificación resultado nuevo */
-        .notif-banner {
-            display: flex; align-items: center; gap: 12px;
-            background: rgba(16,185,129,.08);
-            border: 1px solid rgba(16,185,129,.2);
-            border-radius: 12px; padding: 14px 18px;
-            margin-bottom: 20px; font-size: 14px; color: #34d399;
-        }
-        .notif-banner i { font-size: 20px; flex-shrink: 0; }
+            /* ── Modal ──────────────────────────────────── */
+            .modal-backdrop {
+                display: none;
+                position: fixed; inset: 0;
+                background: rgba(0,0,0,.6);
+                backdrop-filter: blur(6px);
+                z-index: 200;
+                align-items: center; justify-content: center;
+            }
+            .modal-backdrop.open { display: flex; }
+            .modal {
+                background: #111827;
+                border: 1px solid var(--card-border);
+                border-radius: 20px;
+                padding: 32px;
+                width: 100%; max-width: 480px;
+                animation: modalIn .25s ease;
+                margin: 24px;
+            }
+            @keyframes modalIn {
+                from { opacity: 0; transform: scale(.95) translateY(10px); }
+                to   { opacity: 1; transform: scale(1)  translateY(0); }
+            }
+            .modal-header {
+                display: flex; justify-content: space-between; align-items: center;
+                margin-bottom: 24px;
+            }
+            .modal-title { font-size: 18px; font-weight: 700; }
+            .modal-close {
+                width: 32px; height: 32px; border-radius: 8px;
+                border: 1px solid var(--card-border);
+                background: rgba(255,255,255,.03);
+                color: var(--text-secondary);
+                cursor: pointer; font-size: 18px;
+                display: flex; align-items: center; justify-content: center;
+            }
+            .modal-close:hover { color: var(--text-primary); background: rgba(255,255,255,.07); }
 
-        .nav-brand .brand-name {
-            display: inline-flex;
-            flex-direction: column;
-            line-height: 1.1;
-        }
+            .modal .form-group { margin-bottom: 16px; }
+            .modal label {
+                display: block; font-size: 13px; font-weight: 500;
+                color: var(--text-secondary); margin-bottom: 6px;
+            }
+            .modal input, .modal textarea, .modal select {
+                width: 100%;
+                background: rgba(255,255,255,.04);
+                border: 1px solid rgba(255,255,255,.08);
+                border-radius: 10px;
+                padding: 11px 14px;
+                color: var(--text-primary);
+                font-size: 14px; font-family: 'Outfit', sans-serif;
+                transition: border-color .2s, box-shadow .2s;
+            }
+            .modal input:focus, .modal textarea:focus, .modal select:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(99,102,241,.15);
+            }
+            .modal textarea { resize: vertical; min-height: 80px; }
+            .modal select option { background: #111827; }
+            .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+            .btn-cancel {
+                padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 500;
+                border: 1px solid var(--card-border); background: transparent;
+                color: var(--text-secondary); cursor: pointer; font-family: 'Outfit', sans-serif;
+                transition: all .2s;
+            }
+            .btn-cancel:hover { background: rgba(255,255,255,.05); color: var(--text-primary); }
+            .invalid-feedback { color: #f87171; font-size: 12px; margin-top: 5px; display: none; }
+            .is-invalid { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,.15) !important; }
 
-        .nav-brand .brand-name small {
-            color: var(--text-secondary);
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        @media (max-width: 768px) {
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .table-toolbar { flex-direction: column; align-items: stretch; }
-            .search-box { max-width: 100%; }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- ── Navbar ─────────────────────────────────────── -->
-    <header class="navbar">
-        <div class="nav-brand">
-            <a href="{{ url_for('main.dashboard') }}">
-                <img src="{{ url_for('static', filename='images/labtrak_logotipo.png') }}" alt="Logo LabTrack" class="brand-logo-img">
-                <span class="brand-name">
-                    <span>LabTrack</span>
-                    <small>Laboratorio clínico</small>
-                </span>
-            </a>
-        </div>
-        <div class="user-profile">
-            <button type="button" class="theme-toggle" data-theme-toggle aria-label="Cambiar tema">
-                <i class="bi bi-moon-stars"></i>
-            </button>
-            <div class="user-info">
-                <div class="user-name">{{ session.get('user_name', 'Usuario') }}</div>
-                <div class="user-role {{ 'tecnico' if session.get('rol') == 'Tecnico' else 'paciente' }}">
-                    {{ 'Técnico' if session.get('rol') == 'Tecnico' else 'Paciente' }}
-                </div>
-            </div>
-            <a href="{{ url_for('auth.logout') }}" class="logout-btn">
-                <span>Cerrar Sesión</span>
-                <i class="bi bi-box-arrow-right"></i>
-            </a>
-        </div>
-    </header>
-
-    <main class="dashboard-container">
-
-        <!-- Flash messages -->
+            @media (max-width: 768px) {
+                .stats-grid { grid-template-columns: repeat(2, 1fr); }
+                .table-toolbar { flex-direction: column; align-items: stretch; }
+                .search-box { max-width: 100%; }
+            }
+        </style>
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 <div style="margin-bottom: 24px;">
@@ -334,6 +270,7 @@
                 </div>
             {% endif %}
         {% endwith %}
+>>>>>>> origin/main
 
         <!-- Bienvenida -->
         <div class="welcome-section">
@@ -347,6 +284,73 @@
             </p>
         </div>
 
+<<<<<<< HEAD
+        <div class="dashboard-grid">
+            
+            <!-- Sección de Exámenes -->
+            <div class="dashboard-card" style="border-left: 4px solid #3b82f6;">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="bi bi-table"></i>
+                        <span>Catálogo de Exámenes Médicos</span>
+                    </h2>
+                    {% if es_tecnico %}
+                        <button class="btn-add" id="btnCrearExamen">
+                            <i class="bi bi-plus-lg"></i>
+                            <span>Nuevo Examen</span>
+                        </button>
+                    {% endif %}
+                </div>
+
+                <!-- Tabla de Exámenes -->
+                <div id="examenesContainer" class="loading">
+                    <i class="bi bi-hourglass-split"></i>
+                    <p>Cargando exámenes...</p>
+                </div>
+            </div>
+
+            <!-- Sección de Canal de Comunicación / Chat -->
+            <div class="dashboard-card" style="display: flex; flex-direction: column; height: 500px;">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="bi bi-chat-dots"></i>
+                        <span>Canal de Soporte Clínico en Tiempo Real</span>
+                    </h2>
+                </div>
+                
+                <div class="chat-container" style="display: flex; flex: 1; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; overflow: hidden; background: rgba(0, 0, 0, 0.2);">
+                    {% if es_tecnico %}
+                    <div class="chat-sidebar" style="width: 250px; border-right: 1px solid rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; background: rgba(255,255,255,0.02);">
+                        <div style="padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); font-weight: 500; color: #60a5fa;">Pacientes</div>
+                        <div id="chatPacientesList" style="flex: 1; overflow-y: auto;">
+                            <!-- Lista de pacientes cargada dinámicamente -->
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="chat-main" style="flex: 1; display: flex; flex-direction: column;">
+                        <div id="chatHeader" style="padding: 12px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); font-weight: 500; background: rgba(59, 130, 246, 0.1);">
+                            {% if es_tecnico %}Selecciona un paciente para chatear{% else %}Laboratorio Clínico{% endif %}
+                        </div>
+                        
+                        <div id="chatMessages" style="flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+                            <!-- Mensajes -->
+                            {% if es_tecnico %}
+                            <div style="text-align: center; color: var(--text-secondary); margin-top: auto; margin-bottom: auto;">
+                                <i class="bi bi-chat-quote" style="font-size: 32px; display: block; margin-bottom: 12px; color: var(--primary);"></i>
+                                Selecciona un paciente para iniciar
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="chat-input-area" style="padding: 12px; border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; gap: 8px;">
+                            <input type="text" id="chatInput" placeholder="Escribe un mensaje..." class="form-input" style="flex: 1;" {% if es_tecnico %}disabled{% endif %}>
+                            <button id="chatSendBtn" class="btn-primary" style="padding: 8px 16px;" {% if es_tecnico %}disabled{% endif %}>
+                                <i class="bi bi-send"></i>
+                            </button>
+                        </div>
+                    </div>
+=======
         <!-- ════════════════════════════════════════════
              VISTA TÉCNICO
         ════════════════════════════════════════════ -->
@@ -402,6 +406,7 @@
                     <button class="btn-primary-lab" onclick="abrirModal('crear')">
                         <i class="bi bi-plus-lg"></i> Nuevo examen
                     </button>
+>>>>>>> origin/main
                 </div>
             </div>
 
@@ -665,6 +670,49 @@
 
     </main>
 
+<<<<<<< HEAD
+    <!-- Modal para Crear/Editar Examen -->
+    <div class="modal" id="examenModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Nuevo Examen</h2>
+                <button class="modal-close" onclick="cerrarModal()">&times;</button>
+            </div>
+            
+            <form id="examenForm">
+                {% if es_tecnico %}
+                <div class="form-group">
+                    <label class="form-label">Asignar a Paciente</label>
+                    <select name="usuario_id" class="form-input" required id="selectPaciente">
+                        <option value="">-- Selecciona un paciente --</option>
+                    </select>
+                </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label class="form-label">Nombre del Examen</label>
+                    <input type="text" name="nombre" class="form-input" placeholder="Ej: Análisis de sangre" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Descripción</label>
+                    <textarea name="descripcion" class="form-textarea" placeholder="Describa el examen..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Precio ($)</label>
+                    <input type="number" name="precio" class="form-input" step="0.01" min="0" placeholder="Ej: 50.00" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Tiempo de Entrega</label>
+                    <input type="text" name="tiempo_entrega" class="form-input" placeholder="Ej: 24 horas" required>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar Examen</button>
+=======
     <!-- ══════════════════════════════════════════════════
          MODAL: Crear / Editar examen (solo Técnico)
     ══════════════════════════════════════════════════ -->
@@ -721,11 +769,398 @@
                     <button type="submit" class="btn-primary-lab" id="btnGuardar">
                         <i class="bi bi-check-lg"></i> Guardar
                     </button>
+>>>>>>> origin/main
                 </div>
             </form>
         </div>
     </div>
 
+<<<<<<< HEAD
+    <!-- Script -->
+    <script>
+        let examenEditandoId = null;
+        const isTecnico = {{ 'true' if es_tecnico else 'false' }};
+
+        // Cargar exámenes al iniciar
+        document.addEventListener('DOMContentLoaded', cargarExamenes);
+
+        // Event listener para crear examen
+        document.getElementById('btnCrearExamen')?.addEventListener('click', async () => {
+            examenEditandoId = null;
+            document.getElementById('modalTitle').textContent = 'Nuevo Examen';
+            document.getElementById('examenForm').reset();
+            
+            // Si es técnico, cargar pacientes
+            if (isTecnico) {
+                await cargarPacientes();
+            }
+            
+            document.getElementById('examenModal').classList.add('active');
+        });
+
+        // Cargar lista de pacientes
+        async function cargarPacientes() {
+            try {
+                const response = await fetch('/pacientes');
+                const resultado = await response.json();
+
+                const selectPaciente = document.getElementById('selectPaciente');
+                selectPaciente.innerHTML = '<option value="">-- Selecciona un paciente --</option>';
+
+                if (resultado.success && resultado.pacientes.length > 0) {
+                    resultado.pacientes.forEach(paciente => {
+                        const option = document.createElement('option');
+                        option.value = paciente.id;
+                        option.textContent = `${paciente.nombre} (${paciente.cedula})`;
+                        selectPaciente.appendChild(option);
+                    });
+                } else {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'No hay pacientes disponibles';
+                    option.disabled = true;
+                    selectPaciente.appendChild(option);
+                }
+            } catch (error) {
+                mostrarAlerta('Error al cargar pacientes: ' + error.message, 'danger');
+            }
+        }
+
+        // Event listener para enviar formulario
+        document.getElementById('examenForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(document.getElementById('examenForm'));
+            const datos = Object.fromEntries(formData);
+
+            try {
+                let url = '/examenes';
+                let metodo = 'POST';
+
+                if (examenEditandoId) {
+                    url = `/examenes/${examenEditandoId}`;
+                    metodo = 'PUT';
+                }
+
+                const response = await fetch(url, {
+                    method: metodo,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(datos)
+                });
+
+                const resultado = await response.json();
+
+                if (resultado.success) {
+                    mostrarAlerta(resultado.mensaje, 'success');
+                    cerrarModal();
+                    cargarExamenes();
+                } else {
+                    mostrarAlerta(resultado.error || 'Error desconocido', 'danger');
+                }
+            } catch (error) {
+                mostrarAlerta('Error al guardar examen: ' + error.message, 'danger');
+            }
+        });
+
+        async function cargarExamenes() {
+            const container = document.getElementById('examenesContainer');
+            
+            try {
+                const response = await fetch('/examenes');
+                const resultado = await response.json();
+
+                if (resultado.success && resultado.examenes.length > 0) {
+                    let html = '<div class="table-container"><table>';
+                    html += '<thead><tr>';
+                    
+                    // Si es técnico, mostrar columna de paciente
+                    if (isTecnico) {
+                        html += '<th>Paciente</th>';
+                    }
+                    
+                    html += '<th>Nombre</th>';
+                    html += '<th>Descripción</th>';
+                    html += '<th>Precio</th>';
+                    html += '<th>Tiempo de Entrega</th>';
+                    
+                    if (isTecnico) {
+                        html += '<th style="text-align: center;">Acciones</th>';
+                    }
+                    
+                    html += '</tr></thead>';
+                    html += '<tbody>';
+
+                    resultado.examenes.forEach(examen => {
+                        html += `<tr>`;
+                        
+                        if (isTecnico) {
+                            html += `<td><strong>${examen.usuario_nombre}</strong></td>`;
+                        }
+                        
+                        html += `<td><strong>${examen.nombre}</strong></td>
+                            <td>${examen.descripcion}</td>
+                            <td>$${parseFloat(examen.precio).toFixed(2)}</td>
+                            <td>${examen.tiempo_entrega}</td>`;
+                        
+                        if (isTecnico) {
+                            html += `<td style="text-align: center;">
+                                <div class="action-buttons">
+                                    <button class="btn-edit" onclick="editarExamen(${examen.id})">
+                                        <i class="bi bi-pencil"></i> Editar
+                                    </button>
+                                    <button class="btn-delete" onclick="eliminarExamen(${examen.id})">
+                                        <i class="bi bi-trash"></i> Eliminar
+                                    </button>
+                                </div>
+                            </td>`;
+                        }
+                        
+                        html += '</tr>';
+                    });
+
+                    html += '</tbody></table></div>';
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="bi bi-inbox"></i>
+                            <h3>No hay exámenes registrados</h3>
+                            <p>${isTecnico ? 'Crea el primer examen para comenzar.' : 'Aún no te han asignado exámenes.'}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="empty-state" style="color: #f87171;">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <h3>Error al cargar exámenes</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function editarExamen(id) {
+            try {
+                const response = await fetch(`/examenes/${id}`);
+                const resultado = await response.json();
+
+                if (resultado.success) {
+                    const examen = resultado.examen;
+                    examenEditandoId = id;
+                    
+                    document.getElementById('modalTitle').textContent = 'Editar Examen';
+                    
+                    if (isTecnico) {
+                        await cargarPacientes();
+                        document.getElementById('selectPaciente').value = examen.usuario_id;
+                    }
+                    
+                    document.querySelector('[name="nombre"]').value = examen.nombre;
+                    document.querySelector('[name="descripcion"]').value = examen.descripcion;
+                    document.querySelector('[name="precio"]').value = examen.precio;
+                    document.querySelector('[name="tiempo_entrega"]').value = examen.tiempo_entrega;
+                    
+                    document.getElementById('examenModal').classList.add('active');
+                } else {
+                    mostrarAlerta(resultado.error, 'danger');
+                }
+            } catch (error) {
+                mostrarAlerta('Error al cargar examen: ' + error.message, 'danger');
+            }
+        }
+
+        async function eliminarExamen(id) {
+            if (!confirm('¿Estás seguro de que deseas eliminar este examen?')) return;
+
+            try {
+                const response = await fetch(`/examenes/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const resultado = await response.json();
+
+                if (resultado.success) {
+                    mostrarAlerta(resultado.mensaje, 'success');
+                    cargarExamenes();
+                } else {
+                    mostrarAlerta(resultado.error, 'danger');
+                }
+            } catch (error) {
+                mostrarAlerta('Error al eliminar examen: ' + error.message, 'danger');
+            }
+        }
+
+        function cerrarModal() {
+            document.getElementById('examenModal').classList.remove('active');
+            document.getElementById('examenForm').reset();
+            examenEditandoId = null;
+        }
+
+        function mostrarAlerta(mensaje, tipo) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${tipo}`;
+            alertDiv.innerHTML = `
+                <i class="bi bi-info-circle-fill" style="margin-right: 8px;"></i>
+                <span>${mensaje}</span>
+            `;
+            alertContainer.appendChild(alertDiv);
+
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // Cerrar modal al hacer clic fuera de él
+        document.getElementById('examenModal').addEventListener('click', (e) => {
+            if (e.target.id === 'examenModal') {
+                cerrarModal();
+            }
+        });
+
+        // ======================= WEBSOCKETS CHAT & NOTIFICATIONS =======================
+        const socket = io();
+        let currentChatPacienteId = {% if not es_tecnico %}{{ session.get('user_id') }}{% else %}null{% endif %};
+
+        socket.on('connect', () => {
+            console.log('Conectado a WebSockets');
+            if (currentChatPacienteId) {
+                socket.emit('join', { paciente_id: currentChatPacienteId });
+                cargarHistorialChat(currentChatPacienteId);
+            }
+        });
+
+        socket.on('notificacion', (data) => {
+            mostrarAlerta(data.mensaje, data.tipo || 'info');
+        });
+
+        socket.on('receive_message', (msg) => {
+            if (msg.remitente_id === {{ session.get('user_id') }}) return; // Ignorar propios
+            renderizarMensaje(msg);
+        });
+
+        function renderizarMensaje(msg, esMio) {
+            const chatMessages = document.getElementById('chatMessages');
+            const esMioReal = msg.remitente_id === {{ session.get('user_id') }} || esMio;
+            
+            // Si el contenedor tenía el estado vacío, limpiarlo
+            if (chatMessages.querySelector('.bi-chat-quote')) {
+                chatMessages.innerHTML = '';
+            }
+
+            const div = document.createElement('div');
+            div.style.maxWidth = '70%';
+            div.style.padding = '10px 14px';
+            div.style.borderRadius = '12px';
+            div.style.fontSize = '14px';
+            div.style.lineHeight = '1.4';
+            div.style.wordBreak = 'break-word';
+
+            if (esMioReal) {
+                div.style.alignSelf = 'flex-end';
+                div.style.background = 'rgba(59, 130, 246, 0.8)';
+                div.style.color = 'white';
+                div.style.borderBottomRightRadius = '4px';
+            } else {
+                div.style.alignSelf = 'flex-start';
+                div.style.background = 'rgba(255, 255, 255, 0.1)';
+                div.style.color = 'var(--text-primary)';
+                div.style.borderBottomLeftRadius = '4px';
+                
+                const senderName = document.createElement('div');
+                senderName.style.fontSize = '11px';
+                senderName.style.color = '#9ca3af';
+                senderName.style.marginBottom = '4px';
+                senderName.textContent = msg.rol === 'Tecnico' ? 'Laboratorio' : msg.remitente_nombre;
+                div.appendChild(senderName);
+            }
+
+            const textNode = document.createTextNode(msg.contenido);
+            div.appendChild(textNode);
+            
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function cargarHistorialChat(pacienteId) {
+            try {
+                const res = await fetch(`/mensajes/${pacienteId}`);
+                const data = await res.json();
+                const chatMessages = document.getElementById('chatMessages');
+                chatMessages.innerHTML = '';
+                
+                if (data.success && data.mensajes.length > 0) {
+                    data.mensajes.forEach(m => renderizarMensaje(m));
+                } else {
+                    chatMessages.innerHTML = `
+                        <div style="text-align: center; color: var(--text-secondary); margin-top: auto; margin-bottom: auto;">
+                            <i class="bi bi-chat-quote" style="font-size: 32px; display: block; margin-bottom: 12px; opacity: 0.5;"></i>
+                            No hay mensajes aún
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error cargando historial', error);
+            }
+        }
+
+        function enviarMensaje() {
+            const input = document.getElementById('chatInput');
+            const texto = input.value.trim();
+            if (!texto || !currentChatPacienteId) return;
+            
+            const msgObj = {
+                paciente_id: currentChatPacienteId,
+                contenido: texto,
+                remitente_id: {{ session.get('user_id') }},
+                remitente_nombre: '{{ session.get('user_name') }}',
+                rol: '{{ session.get('rol') }}'
+            };
+            
+            socket.emit('send_message', msgObj);
+            renderizarMensaje(msgObj, true);
+            input.value = '';
+        }
+
+        document.getElementById('chatSendBtn')?.addEventListener('click', enviarMensaje);
+        document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') enviarMensaje();
+        });
+
+        // Lógica Técnico: Cargar lista de pacientes para chat
+        if (isTecnico) {
+            fetch('/pacientes').then(r => r.json()).then(data => {
+                if(data.success) {
+                    const list = document.getElementById('chatPacientesList');
+                    list.innerHTML = '';
+                    data.pacientes.forEach(p => {
+                        const btn = document.createElement('div');
+                        btn.style.padding = '12px';
+                        btn.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+                        btn.style.cursor = 'pointer';
+                        btn.style.transition = 'background 0.2s';
+                        btn.textContent = p.nombre;
+                        
+                        btn.onmouseover = () => btn.style.background = 'rgba(255,255,255,0.05)';
+                        btn.onmouseout = () => btn.style.background = 'transparent';
+                        
+                        btn.onclick = () => {
+                            if (currentChatPacienteId) {
+                                socket.emit('leave', {paciente_id: currentChatPacienteId});
+                            }
+                            currentChatPacienteId = p.id;
+                            socket.emit('join', {paciente_id: p.id});
+                            document.getElementById('chatHeader').textContent = `Chat con: ${p.nombre}`;
+                            document.getElementById('chatInput').disabled = false;
+                            document.getElementById('chatSendBtn').disabled = false;
+                            cargarHistorialChat(p.id);
+                        };
+                        list.appendChild(btn);
+                    });
+=======
     <!-- Modal confirmar eliminar -->
     <div class="modal-backdrop" id="deleteBackdrop">
         <div class="modal" style="max-width:380px">
@@ -866,11 +1301,15 @@
                     banner.style.display = 'flex';
                     banner.querySelector('span').innerHTML =
                         ` Tu resultado de <strong>${data.tipo_examen}</strong> ya está disponible.`;
+>>>>>>> origin/main
                 }
             });
         }
     </script>
+<<<<<<< HEAD
+=======
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+>>>>>>> origin/main
 </body>
 </html>
