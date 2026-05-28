@@ -261,10 +261,20 @@
         /* Notificaciones Styles */
         .notification-bell {
             position: relative;
-            cursor: pointer;
-            padding: 8px;
             color: var(--text-primary, #eee);
             margin-right: 16px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .notification-trigger {
+            cursor: pointer;
+            padding: 8px;
+            background: transparent;
+            border: none;
+            color: inherit;
+            display: inline-flex;
+            align-items: center;
         }
         
         .notification-badge {
@@ -366,11 +376,15 @@
         </div>
 
         <div class="user-profile">
-            <!-- Campana de Notificaciones (desde feature/crud-examen) -->
-            <div class="notification-bell" id="notificationBell" onclick="toggleNotificaciones()">
-                <i class="bi bi-bell-fill" style="font-size: 1.2rem;"></i>
-                <span class="notification-badge" id="notificationBadge">0</span>
-
+            <button type="button" class="theme-toggle" data-theme-toggle aria-label="Cambiar tema">
+                <i class="bi bi-moon-stars"></i>
+            </button>
+            <!-- Campana de Notificaciones -->
+            <div class="notification-bell">
+                <button type="button" class="notification-trigger" id="notificationBell" onclick="toggleNotificaciones()" aria-label="Ver notificaciones" aria-haspopup="true" aria-expanded="false">
+                    <i class="bi bi-bell-fill" style="font-size: 1.2rem;"></i>
+                    <span class="notification-badge" id="notificationBadge">0</span>
+                </button>
                 <div class="notification-dropdown" id="notificationDropdown">
                     <div style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: bold; color: white;">
                         Notificaciones
@@ -383,10 +397,6 @@
                 </div>
             </div>
 
-            <!-- Theme toggle (mantener control de usuario) -->
-            <button type="button" class="theme-toggle" data-theme-toggle aria-label="Cambiar tema">
-                <i class="bi bi-moon-stars"></i>
-            </button>
             <div class="user-info">
                 <div class="user-name">{{ session.get('user_name', 'Usuario') }}</div>
                 {% set es_tecnico = session.get('rol') in ['Tecnico', 'Técnico'] %}
@@ -496,7 +506,7 @@
             <form id="examenForm">
                 {% if es_tecnico %}
                     <div class="form-group">
-                    <label class="form-label">Asignar a Paciente</label>
+                    <label class="form-label" for="selectPaciente">Asignar a Paciente</label>
                     <select name="usuario_id" class="form-select" required id="selectPaciente">
                         <option value="">-- Selecciona un paciente --</option>
                     </select>
@@ -504,23 +514,23 @@
                 {% endif %}
 
                 <div class="form-group">
-                    <label class="form-label">Nombre del Examen</label>
-                    <input type="text" name="nombre" class="form-input" placeholder="Ej: Análisis de sangre" required>
+                    <label class="form-label" for="nombreExamen">Nombre del Examen</label>
+                    <input type="text" id="nombreExamen" name="nombre" class="form-input" placeholder="Ej: Análisis de sangre" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Descripción</label>
-                    <textarea name="descripcion" class="form-textarea" placeholder="Describa el examen..." required></textarea>
+                    <label class="form-label" for="descripcionExamen">Descripción</label>
+                    <textarea id="descripcionExamen" name="descripcion" class="form-textarea" placeholder="Describa el examen..." required></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Precio ($)</label>
-                    <input type="number" name="precio" class="form-input" step="0.01" min="0" placeholder="Ej: 50.00" required>
+                    <label class="form-label" for="precioExamen">Precio ($)</label>
+                    <input type="number" id="precioExamen" name="precio" class="form-input" step="0.01" min="0" placeholder="Ej: 50.00" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Tiempo de Entrega</label>
-                    <input type="text" name="tiempo_entrega" class="form-input" placeholder="Ej: 24 horas" required>
+                    <label class="form-label" for="tiempoEntregaExamen">Tiempo de Entrega</label>
+                    <input type="text" id="tiempoEntregaExamen" name="tiempo_entrega" class="form-input" placeholder="Ej: 24 horas" required>
                 </div>
 
                 <div class="modal-footer">
@@ -543,8 +553,8 @@
                 <input type="hidden" id="uploadExamenId" name="examen_id">
                 
                 <div class="form-group">
-                    <label class="form-label">Archivo de Resultado (PDF, JPG, PNG)</label>
-                    <input type="file" name="archivo" class="form-input" accept=".pdf,.png,.jpg,.jpeg" required style="padding-top: 6px;">
+                    <label class="form-label" for="archivoResultado">Archivo de Resultado (PDF, JPG, PNG)</label>
+                    <input type="file" id="archivoResultado" name="archivo" class="form-input" accept=".pdf,.png,.jpg,.jpeg" required style="padding-top: 6px;">
                 </div>
 
                 <div class="modal-footer">
@@ -685,34 +695,47 @@
                         const badgeClass = examen.estado === 'Listo' ? 'badge-listo' : 'badge-pendiente';
                         html += `<td><span class="badge-estado ${badgeClass}">${examen.estado}</span></td>`;
                         
-                        html += `<td style="text-align: center;">
-                            <div class="action-buttons" style="justify-content: center;">`;
-                        
                         if (isTecnico) {
+                            html += `<td style="text-align: center;">
+                                <div class="action-buttons" style="justify-content: center;">`;
+
                             html += `
-                                <button class="btn-edit" onclick="editarExamen(${examen.id})" title="Editar">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                                <button class="btn-delete" onclick="eliminarExamen(${examen.id})" title="Eliminar">
-                                    <i class="bi bi-trash"></i>
-                                </button>`;
-                            
+                                    <button class="btn-edit" onclick="editarExamen(${examen.id})" title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn-delete" onclick="eliminarExamen(${examen.id})" title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </button>`;
+
                             if (examen.estado === 'Pendiente') {
                                 html += `
-                                <button class="btn-add" onclick="abrirSubirResultado(${examen.id})" style="padding: 6px 12px; font-size: 12px;">
-                                    <i class="bi bi-upload"></i> Subir Resultado
-                                </button>`;
+                                    <button class="btn-add" onclick="abrirSubirResultado(${examen.id})" style="padding: 6px 12px; font-size: 12px;">
+                                        <i class="bi bi-upload"></i> Subir Resultado
+                                    </button>`;
                             }
-                        }
-                        
-                        if (examen.estado === 'Listo' && examen.archivo_resultado) {
-                            html += `
-                                <a href="${examen.archivo_resultado}" target="_blank" class="btn-primary" style="text-decoration: none; padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;">
-                                    <i class="bi bi-download"></i> Descargar
-                                </a>`;
+
+                            if (examen.estado === 'Listo' && examen.archivo_resultado) {
+                                html += `
+                                    <a href="${examen.archivo_resultado}" target="_blank" class="btn-primary" style="text-decoration: none; padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;">
+                                        <i class="bi bi-download"></i> Descargar
+                                    </a>`;
+                            }
+
+                            html += `</div></td>`;
+                        } else {
+                            html += `<td style="text-align: center;">`;
+                            if (examen.estado === 'Listo' && examen.archivo_resultado) {
+                                html += `
+                                    <a href="${examen.archivo_resultado}" target="_blank" class="btn-primary" style="text-decoration: none; padding: 6px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;">
+                                        <i class="bi bi-download"></i> Descargar
+                                    </a>`;
+                            } else {
+                                html += '<span style="color: var(--text-secondary); font-size: 13px;">Sin acciones disponibles</span>';
+                            }
+                            html += `</td>`;
                         }
 
-                        html += `</div></td></tr>`;
+                        html += `</tr>`;
                     });
 
                     html += '</tbody></table></div>';
@@ -818,10 +841,14 @@
 
         // ======================= WEBSOCKETS CHAT & NOTIFICATIONS =======================
         const socket = io();
-        let currentChatPacienteId = {% if not es_tecnico %}{{ session.get('user_id') }}{% else %}null{% endif %};
+        const currentUserId = {{ session.get('user_id') | tojson }};
+        let currentChatPacienteId = {% if not es_tecnico %}{{ session.get('user_id') | tojson }}{% else %}null{% endif %};
 
         socket.on('connect', () => {
             console.log('Conectado a WebSockets');
+            if (currentUserId) {
+                socket.emit('join', { usuario_id: currentUserId });
+            }
             if (currentChatPacienteId) {
                 socket.emit('join', { paciente_id: currentChatPacienteId });
                 cargarHistorialChat(currentChatPacienteId);
@@ -961,7 +988,10 @@
 
         // Notificaciones UI
         function toggleNotificaciones() {
-            document.getElementById('notificationDropdown').classList.toggle('active');
+            const dropdown = document.getElementById('notificationDropdown');
+            const bell = document.getElementById('notificationBell');
+            const isOpen = dropdown.classList.toggle('active');
+            bell?.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
         }
 
         // Cerrar dropdown al hacer click fuera
@@ -970,13 +1000,13 @@
             const dropdown = document.getElementById('notificationDropdown');
             if (bell && dropdown && !bell.contains(e.target)) {
                 dropdown.classList.remove('active');
+                bell.setAttribute('aria-expanded', 'false');
             }
         });
 
         let notificacionesCount = 0;
         
         async function cargarNotificaciones() {
-            if (isTecnico) return; // Técnicos no tienen notificaciones en este esquema
             try {
                 const response = await fetch('/notificaciones');
                 const data = await response.json();
@@ -1067,9 +1097,7 @@
         });
 
         // Inicializar notificaciones
-        if (!isTecnico) {
-            document.addEventListener('DOMContentLoaded', cargarNotificaciones);
-        }
+        document.addEventListener('DOMContentLoaded', cargarNotificaciones);
 
         // Lógica Técnico: Cargar lista de pacientes para chat
         if (isTecnico) {
@@ -1081,6 +1109,7 @@
                         const btn = document.createElement('div');
                         btn.style.padding = '12px';
                         btn.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+                        btn.style.borderRadius = '10px';
                         btn.style.cursor = 'pointer';
                         btn.style.transition = 'background 0.2s';
                         btn.textContent = p.nombre;

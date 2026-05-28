@@ -209,10 +209,26 @@ def crear_examen():
         db.session.add(nuevo_examen)
         db.session.commit()
         
+        mensaje_notif = f'Te han asignado un nuevo examen: {nuevo_examen.nombre}'
+        nueva_notif = crear_notificacion_usuario(
+            usuario_id,
+            'Nuevo Examen',
+            mensaje_notif,
+            'success'
+        )
+
         socketio.emit('notificacion', {
-            'titulo': 'Nuevo Examen',
-            'mensaje': f'Te han asignado un nuevo examen: {nuevo_examen.nombre}',
-            'tipo': 'success'
+            'titulo': nueva_notif.titulo,
+            'mensaje': nueva_notif.mensaje,
+            'tipo': nueva_notif.tipo
+        }, room=f"paciente_{usuario_id}")
+
+        socketio.emit('nueva_notificacion_data', {
+            'id': nueva_notif.id,
+            'titulo': nueva_notif.titulo,
+            'mensaje': nueva_notif.mensaje,
+            'tipo': nueva_notif.tipo,
+            'fecha': nueva_notif.fecha_creacion.strftime('%Y-%m-%d %H:%M')
         }, room=f"paciente_{usuario_id}")
         
         return jsonify({
@@ -315,10 +331,26 @@ def actualizar_examen(examen_id):
         
         db.session.commit()
         
+        mensaje_notif = f'El examen "{examen.nombre}" ha sido actualizado.'
+        nueva_notif = crear_notificacion_usuario(
+            examen.usuario_id,
+            'Examen Actualizado',
+            mensaje_notif,
+            'info'
+        )
+
         socketio.emit('notificacion', {
-            'titulo': 'Examen Actualizado',
-            'mensaje': f'El examen "{examen.nombre}" ha sido actualizado.',
-            'tipo': 'info'
+            'titulo': nueva_notif.titulo,
+            'mensaje': nueva_notif.mensaje,
+            'tipo': nueva_notif.tipo
+        }, room=f"paciente_{examen.usuario_id}")
+
+        socketio.emit('nueva_notificacion_data', {
+            'id': nueva_notif.id,
+            'titulo': nueva_notif.titulo,
+            'mensaje': nueva_notif.mensaje,
+            'tipo': nueva_notif.tipo,
+            'fecha': nueva_notif.fecha_creacion.strftime('%Y-%m-%d %H:%M')
         }, room=f"paciente_{examen.usuario_id}")
         
         return jsonify({
@@ -363,10 +395,26 @@ def eliminar_examen(examen_id):
         db.session.delete(examen)
         db.session.commit()
         
+        mensaje_notif = f'El examen "{nombre_examen}" ha sido eliminado.'
+        nueva_notif = crear_notificacion_usuario(
+            examen.usuario_id,
+            'Examen Eliminado',
+            mensaje_notif,
+            'warning'
+        )
+
         socketio.emit('notificacion', {
-            'titulo': 'Examen Eliminado',
-            'mensaje': f'El examen "{nombre_examen}" ha sido eliminado.',
-            'tipo': 'warning'
+            'titulo': nueva_notif.titulo,
+            'mensaje': nueva_notif.mensaje,
+            'tipo': nueva_notif.tipo
+        }, room=f"paciente_{examen.usuario_id}")
+
+        socketio.emit('nueva_notificacion_data', {
+            'id': nueva_notif.id,
+            'titulo': nueva_notif.titulo,
+            'mensaje': nueva_notif.mensaje,
+            'tipo': nueva_notif.tipo,
+            'fecha': nueva_notif.fecha_creacion.strftime('%Y-%m-%d %H:%M')
         }, room=f"paciente_{examen.usuario_id}")
         
         return jsonify({
@@ -380,6 +428,19 @@ def eliminar_examen(examen_id):
             'success': False,
             'error': str(e)
         }), 500
+
+
+def crear_notificacion_usuario(usuario_id, titulo, mensaje, tipo='info'):
+    """Crear una notificación persistente y devolver el registro creado."""
+    nueva_notif = Notificacion(
+        usuario_id=usuario_id,
+        titulo=titulo,
+        mensaje=mensaje,
+        tipo=tipo
+    )
+    db.session.add(nueva_notif)
+    db.session.commit()
+    return nueva_notif
 
 # ======================== RUTAS DEL CHAT ========================
 
@@ -447,16 +508,14 @@ def subir_resultado(examen_id):
         examen.archivo_resultado = filename
         examen.estado = 'Listo'
         
-        # Crear notificación
+        # Crear notificación persistente
         mensaje_notif = f'El resultado para tu examen "{examen.nombre}" ya está listo para descargar.'
-        nueva_notif = Notificacion(
-            usuario_id=examen.usuario_id,
-            titulo='Resultado de Examen Listo',
-            mensaje=mensaje_notif,
-            tipo='success'
+        nueva_notif = crear_notificacion_usuario(
+            examen.usuario_id,
+            'Resultado de Examen Listo',
+            mensaje_notif,
+            'success'
         )
-        db.session.add(nueva_notif)
-        db.session.commit()
 
         # Emitir por socket
         socketio.emit('notificacion', {
