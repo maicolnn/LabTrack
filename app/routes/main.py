@@ -2,6 +2,8 @@ from flask import Blueprint, render_template, request, jsonify, session
 from app.utils.decorators import login_required, tecnico_required
 from app.models.usuario import db, Usuario
 from app.models.examen import Examen
+from app.models.mensaje import Mensaje
+from app.extensions import socketio
 
 main_bp = Blueprint('main', __name__)
 
@@ -212,6 +214,12 @@ def crear_examen():
         db.session.add(nuevo_examen)
         db.session.commit()
         
+        socketio.emit('notificacion', {
+            'titulo': 'Nuevo Examen',
+            'mensaje': f'Te han asignado un nuevo examen: {nuevo_examen.nombre}',
+            'tipo': 'success'
+        }, room=f"paciente_{usuario_id}")
+        
         return jsonify({
             'success': True,
             'mensaje': 'Examen creado exitosamente',
@@ -322,6 +330,12 @@ def actualizar_examen(examen_id):
         
         db.session.commit()
         
+        socketio.emit('notificacion', {
+            'titulo': 'Examen Actualizado',
+            'mensaje': f'El examen "{examen.nombre}" ha sido actualizado.',
+            'tipo': 'info'
+        }, room=f"paciente_{examen.usuario_id}")
+        
         return jsonify({
             'success': True,
             'mensaje': 'Examen actualizado exitosamente',
@@ -364,6 +378,12 @@ def eliminar_examen(examen_id):
         db.session.delete(examen)
         db.session.commit()
         
+        socketio.emit('notificacion', {
+            'titulo': 'Examen Eliminado',
+            'mensaje': f'El examen "{nombre_examen}" ha sido eliminado.',
+            'tipo': 'warning'
+        }, room=f"paciente_{examen.usuario_id}")
+        
         return jsonify({
             'success': True,
             'mensaje': f'Examen "{nombre_examen}" eliminado exitosamente'
@@ -371,6 +391,42 @@ def eliminar_examen(examen_id):
     
     except Exception as e:
         db.session.rollback()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+# ======================== RUTAS DEL CHAT ========================
+
+@main_bp.route('/mensajes/<int:paciente_id>', methods=['GET'])
+@login_required
+def obtener_mensajes(paciente_id):
+    """Obtener el historial de mensajes de un paciente específico"""
+    try:
+        user_id = session.get('user_id')
+        user_rol = session.get('rol')
+        
+        # Validación de seguridad: el paciente solo puede ver sus propios mensajes
+        if user_rol != 'Tecnico' and user_id != paciente_id:
+            return jsonify({'success': False, 'error': 'No autorizado'}), 403
+            
+        mensajes = Mensaje.query.filter_by(paciente_id=paciente_id).order_by(Mensaje.fecha.asc()).all()
+        
+        mensajes_list = [{
+            'id': msg.id,
+            'remitente_id': msg.remitente_id,
+            'remitente_nombre': msg.remitente.nombre,
+            'rol': 'Tecnico' if msg.remitente.rol in ['Tecnico', 'Técnico'] else 'Paciente',
+            'contenido': msg.contenido,
+            'fecha': msg.fecha.strftime('%Y-%m-%d %H:%M:%S')
+        } for msg in mensajes]
+        
+        return jsonify({
+            'success': True,
+            'mensajes': mensajes_list
+        }), 200
+        
+    except Exception as e:
         return jsonify({
             'success': False,
             'error': str(e)

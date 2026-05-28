@@ -3,7 +3,7 @@ import os
 from flask import Flask, redirect, url_for
 from app.models.usuario import db, Usuario
 from app.models.examen import Examen
-from flask_socketio import SocketIO
+from app.extensions import socketio
 from sqlalchemy import text
 from app.routes.auth import auth_bp
 from app.routes.main import main_bp
@@ -22,11 +22,15 @@ app.config['SECRET_KEY'] = 'clave_secreta_laboratorio_2026'
 
 # Inicializar Base de Datos y WebSockets
 db.init_app(app)
-socketio = SocketIO(app)
+socketio.init_app(app)
 
 # Registrar los blueprints de rutas
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(main_bp)
+
+import app.events as _events
+
+from app.models.mensaje import Mensaje
 
 # Crear las tablas automáticamente en la base de datos
 with app.app_context():
