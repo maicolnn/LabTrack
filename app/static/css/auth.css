@@ -500,3 +500,22 @@ body {
         font-size: 24px;
     }
 }
+
+/* Ensure select options are readable in both themes */
+.form-select,
+select {
+    color: var(--text-primary);
+    background-color: transparent;
+}
+
+.form-select option,
+select option {
+    background-color: rgba(17, 25, 40, 0.95);
+    color: var(--text-primary);
+}
+
+html[data-theme='light'] .form-select option,
+html[data-theme='light'] select option {
+    background-color: rgba(255, 255, 255, 0.98);
+    color: var(--text-primary);
+}
