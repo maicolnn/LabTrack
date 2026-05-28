@@ -529,8 +529,16 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="tiempoEntregaExamen">Tiempo de Entrega</label>
-                    <input type="text" id="tiempoEntregaExamen" name="tiempo_entrega" class="form-input" placeholder="Ej: 24 horas" required>
+                    <label class="form-label" for="tiempoEntregaValue">Tiempo de Entrega</label>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <input type="number" id="tiempoEntregaValue" min="0" class="form-input" placeholder="Ej: 24" required style="flex:1;">
+                        <select id="tiempoEntregaUnidad" class="form-select" required style="width:140px;">
+                            <option value="horas">Horas</option>
+                            <option value="días">Días</option>
+                            <option value="semanas">Semanas</option>
+                        </select>
+                    </div>
+                    <input type="hidden" id="tiempoEntregaExamen" name="tiempo_entrega">
                 </div>
 
                 <div class="modal-footer">
@@ -620,7 +628,19 @@
         // Event listener para enviar formulario
         document.getElementById('examenForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
+            // Combinar valor + unidad en el campo hidden 'tiempo_entrega'
+            const val = document.getElementById('tiempoEntregaValue')?.value;
+            const unidad = document.getElementById('tiempoEntregaUnidad')?.value;
+            const hidden = document.getElementById('tiempoEntregaExamen');
+            if (hidden) {
+                if (val !== undefined && val !== null && String(val).trim() !== '') {
+                    hidden.value = `${val} ${unidad}`;
+                } else {
+                    hidden.value = '';
+                }
+            }
+
             const formData = new FormData(document.getElementById('examenForm'));
             const datos = Object.fromEntries(formData);
 
@@ -779,7 +799,32 @@
                     document.querySelector('[name="nombre"]').value = examen.nombre;
                     document.querySelector('[name="descripcion"]').value = examen.descripcion;
                     document.querySelector('[name="precio"]').value = examen.precio;
-                    document.querySelector('[name="tiempo_entrega"]').value = examen.tiempo_entrega;
+                    // Poblar controles de tiempo de entrega (valor + unidad)
+                    const tiempoHidden = document.getElementById('tiempoEntregaExamen');
+                    const tiempoVal = document.getElementById('tiempoEntregaValue');
+                    const tiempoUni = document.getElementById('tiempoEntregaUnidad');
+                    if (examen.tiempo_entrega) {
+                        // Intentar parsear formato "<numero> <unidad>" (ej. "24 horas")
+                        const parts = String(examen.tiempo_entrega).split(/\s+/);
+                        if (parts.length >= 2 && !isNaN(parseFloat(parts[0]))) {
+                            tiempoVal.value = parts[0];
+                            // Normalizar unidad simple
+                            const unidadRaw = parts.slice(1).join(' ');
+                            if (unidadRaw.toLowerCase().includes('dia')) tiempoUni.value = 'días';
+                            else if (unidadRaw.toLowerCase().includes('semana')) tiempoUni.value = 'semanas';
+                            else tiempoUni.value = 'horas';
+                            tiempoHidden.value = `${parts[0]} ${tiempoUni.value}`;
+                        } else {
+                            // Si no se puede parsear, dejar en hidden el texto completo
+                            tiempoHidden.value = examen.tiempo_entrega;
+                            tiempoVal.value = '';
+                            tiempoUni.value = 'horas';
+                        }
+                    } else {
+                        if (tiempoVal) tiempoVal.value = '';
+                        if (tiempoUni) tiempoUni.value = 'horas';
+                        if (tiempoHidden) tiempoHidden.value = '';
+                    }
                     
                     document.getElementById('examenModal').classList.add('active');
                 } else {
@@ -815,6 +860,13 @@
             document.getElementById('examenModal').classList.remove('active');
             document.getElementById('examenForm').reset();
             examenEditandoId = null;
+            // Limpiar controles específicos de tiempo
+            const tiempoVal = document.getElementById('tiempoEntregaValue');
+            const tiempoUni = document.getElementById('tiempoEntregaUnidad');
+            const tiempoHidden = document.getElementById('tiempoEntregaExamen');
+            if (tiempoVal) tiempoVal.value = '';
+            if (tiempoUni) tiempoUni.value = 'horas';
+            if (tiempoHidden) tiempoHidden.value = '';
         }
 
         function mostrarAlerta(mensaje, tipo) {
