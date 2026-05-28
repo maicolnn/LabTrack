@@ -51,6 +51,14 @@ with app.app_context():
         db.session.commit()
     except Exception:
         db.session.rollback()
+    # Asegurar que la tabla mensajes tenga la columna `sala` (para salas de chat por examen/cita)
+    try:
+        msg_cols = [row[1] for row in db.session.execute(text("PRAGMA table_info(mensajes)")).all()]
+        if 'sala' not in msg_cols:
+            db.session.execute(text("ALTER TABLE mensajes ADD COLUMN sala TEXT"))
+            db.session.commit()
+    except Exception:
+        db.session.rollback()
 
 @app.route('/')
 def index():
