@@ -1,6 +1,7 @@
 from flask import Flask, redirect, url_for
 from app.models.usuario import db
 from flask_socketio import SocketIO
+from flask_wtf.csrf import CSRFProtect
 from app.routes.auth import auth_bp
 from app.routes.main import main_bp
 
@@ -13,6 +14,7 @@ app.config['SECRET_KEY'] = 'clave_secreta_laboratorio_2026'
 
 # Inicializar Base de Datos y WebSockets
 db.init_app(app)
+csrf = CSRFProtect(app)
 socketio = SocketIO(app)
 
 # Registrar los blueprints de rutas

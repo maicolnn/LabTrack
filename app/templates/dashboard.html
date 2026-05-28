@@ -677,7 +677,9 @@
             </div>
 
             <form id="examenForm" method="POST" novalidate>
+                {% if csrf_token is defined %}
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                {% endif %}
                 <input type="hidden" name="examen_id" id="examenId">
 
                 <div class="form-group">
@@ -741,7 +743,9 @@
             <div class="modal-footer">
                 <button class="btn-cancel" onclick="cerrarDelete()">Cancelar</button>
                 <form id="deleteForm" method="POST">
+                    {% if csrf_token is defined %}
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    {% endif %}
                     <button type="submit" style="padding:10px 20px;border-radius:10px;font-size:14px;
                         font-weight:600;background:rgba(239,68,68,.2);color:#f87171;
                         border:1px solid rgba(239,68,68,.3);cursor:pointer;font-family:'Outfit',sans-serif;
