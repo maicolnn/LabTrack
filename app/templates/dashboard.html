@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - LabTrack</title>
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <!-- Estilo Premium -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<<<<<<< HEAD
     <!-- Socket.IO Client Script -->
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <style>
@@ -17,283 +16,275 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: rgba(255, 255, 255, 0.02);
-        }
-        
-        thead {
-            background: rgba(59, 130, 246, 0.1);
-            border-bottom: 2px solid rgba(59, 130, 246, 0.2);
-        }
-        
-        th {
-            padding: 16px;
-            text-align: left;
-            font-weight: 600;
-            color: #60a5fa;
-            font-size: 14px;
-        }
-        
-        td {
-            padding: 14px 16px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            font-size: 14px;
-        }
-        
-        tbody tr:hover {
-            background: rgba(59, 130, 246, 0.05);
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-        
-        .btn-edit, .btn-delete, .btn-add {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            transition: all 0.3s;
-        }
-        
-        .btn-edit {
-            background: rgba(59, 130, 246, 0.2);
-            color: #60a5fa;
-            border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-        
-        .btn-edit:hover {
-            background: rgba(59, 130, 246, 0.3);
-            border-color: rgba(59, 130, 246, 0.5);
-        }
-        
-        .btn-delete {
-            background: rgba(239, 68, 68, 0.2);
-            color: #f87171;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-        
-        .btn-delete:hover {
-            background: rgba(239, 68, 68, 0.3);
-            border-color: rgba(239, 68, 68, 0.5);
-        }
-        
-        .btn-add {
-            background: rgba(16, 185, 129, 0.2);
-            color: #34d399;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            padding: 10px 16px;
-        }
-        
-        .btn-add:hover {
-            background: rgba(16, 185, 129, 0.3);
-            border-color: rgba(16, 185, 129, 0.5);
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal.active {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: var(--bg-secondary, #1a1a2e);
-            border-radius: 12px;
-            padding: 32px;
-            width: 90%;
-            max-width: 500px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 16px;
-        }
-        
-        .modal-header h2 {
-            margin: 0;
-            font-size: 20px;
-        }
-        
-        .modal-close {
-            background: none;
-            border: none;
-            color: var(--text-secondary, #999);
-            cursor: pointer;
-            font-size: 24px;
-        }
-        
-        .form-group {
-            margin-bottom: 16px;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            font-size: 13px;
-            color: var(--text-primary, #eee);
-        }
-        
-        .form-input, .form-textarea {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-primary, #eee);
-            font-size: 13px;
-            font-family: inherit;
-        }
-        
-        .form-textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-        
-        .form-input:focus, .form-textarea:focus {
-            outline: none;
-            border-color: #60a5fa;
-            background: rgba(255, 255, 255, 0.08);
-        }
-        
-        .modal-footer {
-            display: flex;
-            gap: 12px;
-            margin-top: 24px;
-            justify-content: flex-end;
-        }
-        
-        .btn-primary, .btn-secondary {
-            padding: 10px 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 13px;
-            transition: all 0.3s;
-        }
-        
-        .btn-primary {
-            background: rgba(59, 130, 246, 0.8);
-            color: white;
-            border: 1px solid rgba(59, 130, 246, 0.5);
-        }
-        
-        .btn-primary:hover {
-            background: rgba(59, 130, 246, 1);
-        }
-        
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--text-secondary, #999);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-secondary, #999);
-        }
-        
-        .empty-state i {
-            font-size: 48px;
-            display: block;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: var(--text-secondary, #999);
-        }
-        
-        .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            font-size: 14px;
-            border: 1px solid transparent;
-        }
-        
-        .alert-success {
-            background: rgba(16, 185, 129, 0.1);
-            color: #34d399;
-            border-color: rgba(16, 185, 129, 0.2);
-        }
-        
-        .alert-danger {
-            background: rgba(239, 68, 68, 0.1);
-            color: #f87171;
-            border-color: rgba(239, 68, 68, 0.2);
-        }
-    </style>
-</head>
-<body>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+        <!-- Socket.IO Client Script -->
+        <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+        <script defer src="{{ url_for('static', filename='js/theme.js') }}"></script>
+        <style>
+            /* ── Stats cards ───────────────────────────── */
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 16px;
+                margin-bottom: 24px;
+            }
+            .stat-card {
+                background: var(--card-bg);
+                backdrop-filter: blur(20px);
+                border: 1px solid var(--card-border);
+                border-radius: 16px;
+                padding: 20px 24px;
+                display: flex;
+                align-items: center;
+                gap: 16px;
+            }
+            .stat-icon {
+                width: 48px; height: 48px;
+                border-radius: 12px;
+                display: flex; align-items: center; justify-content: center;
+                font-size: 22px;
+                flex-shrink: 0;
+            }
+            .stat-icon.purple { background: rgba(168,85,247,.15); color: #c084fc; }
+            .stat-icon.indigo { background: rgba(99,102,241,.15); color: #818cf8; }
+            .stat-icon.green  { background: rgba(16,185,129,.15);  color: #34d399; }
+            .stat-icon.amber  { background: rgba(245,158,11,.15);  color: #fbbf24; }
+            .stat-num  { font-size: 26px; font-weight: 700; color: var(--text-primary); line-height: 1; }
+            .stat-label{ font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
 
-    <!-- Barra de Navegación Premium -->
-    <header class="navbar">
-        <div class="nav-brand">
-            <i class="bi bi-activity"></i>
-            <span>LabTrack</span>
-        </div>
+            /* ── Toolbar sobre la tabla ─────────────────── */
+            .table-toolbar {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                margin-bottom: 20px;
+                flex-wrap: wrap;
+            }
+            .search-box {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                background: rgba(255,255,255,.04);
+                border: 1px solid var(--card-border);
+                border-radius: 10px;
+                padding: 0 14px;
+                flex: 1;
+                max-width: 320px;
+            }
+            .search-box i { color: var(--text-secondary); font-size: 16px; }
+            .search-box input {
+                background: transparent;
+                border: none;
+                outline: none;
+                color: var(--text-primary);
+                font-size: 14px;
+                font-family: 'Outfit', sans-serif;
+                padding: 10px 0;
+                width: 100%;
+            }
+            .search-box input::placeholder { color: var(--text-secondary); }
 
-        <div class="user-profile">
-            <div class="user-info">
-                <div class="user-name">{{ session.get('user_name', 'Usuario') }}</div>
-                {% set es_tecnico = session.get('rol') in ['Tecnico', 'Técnico'] %}
-                <div class="user-role {{ 'tecnico' if es_tecnico else 'paciente' }}">
-                    {{ 'Técnico' if es_tecnico else 'Paciente' }}
+            .btn-primary-lab {
+                display: inline-flex; align-items: center; gap: 8px;
+                background: linear-gradient(135deg, #6366f1, #4f46e5);
+                color: white; border: none; border-radius: 10px;
+                padding: 10px 18px; font-size: 14px; font-weight: 600;
+                cursor: pointer; font-family: 'Outfit', sans-serif;
+                box-shadow: 0 4px 12px rgba(99,102,241,.25);
+                transition: all .2s ease; text-decoration: none;
+            }
+            .btn-primary-lab:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(99,102,241,.4); color: white; text-decoration: none; }
+
+            /* ── Tabla ──────────────────────────────────── */
+            .table-wrap {
+                overflow-x: auto;
+                border-radius: 12px;
+                border: 1px solid var(--card-border);
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 14px;
+            }
+            thead {
+                background: rgba(255,255,255,.03);
+                border-bottom: 1px solid var(--card-border);
+            }
+            th {
+                padding: 14px 16px;
+                text-align: left;
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--text-secondary);
+                text-transform: uppercase;
+                letter-spacing: .06em;
+                white-space: nowrap;
+            }
+            td {
+                padding: 14px 16px;
+                border-bottom: 1px solid rgba(255,255,255,.04);
+                color: var(--text-primary);
+                vertical-align: middle;
+            }
+            tbody tr:last-child td { border-bottom: none; }
+            tbody tr { transition: background .15s; }
+            tbody tr:hover { background: rgba(255,255,255,.02); }
+
+            .exam-name { font-weight: 600; }
+            .exam-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+            .precio-badge {
+                background: rgba(16,185,129,.1); color: #34d399;
+                border: 1px solid rgba(16,185,129,.2);
+                padding: 3px 10px; border-radius: 20px;
+                font-size: 13px; font-weight: 600;
+            }
+            .tiempo-badge {
+                background: rgba(245,158,11,.1); color: #fbbf24;
+                border: 1px solid rgba(245,158,11,.2);
+                padding: 3px 10px; border-radius: 20px;
+                font-size: 12px; font-weight: 500;
+            }
+            .activo-badge {
+                display: inline-flex; align-items: center; gap: 5px;
+                font-size: 12px; font-weight: 500;
+                padding: 3px 10px; border-radius: 20px;
+            }
+            .activo-badge.activo  { background: rgba(16,185,129,.1);  color: #34d399; border: 1px solid rgba(16,185,129,.2); }
+            .activo-badge.inactivo{ background: rgba(239,68,68,.1);    color: #f87171; border: 1px solid rgba(239,68,68,.2); }
+
+            /* Botones de acción en tabla */
+            .actions { display: flex; gap: 6px; }
+            .btn-accion {
+                width: 32px; height: 32px;
+                border-radius: 8px; border: 1px solid var(--card-border);
+                background: rgba(255,255,255,.03);
+                color: var(--text-secondary);
+                cursor: pointer; font-size: 15px;
+                display: flex; align-items: center; justify-content: center;
+                transition: all .2s; text-decoration: none;
+            }
+            .btn-accion:hover.edit   { background: rgba(99,102,241,.15); color: #818cf8; border-color: rgba(99,102,241,.3); }
+            .btn-accion:hover.delete { background: rgba(239,68,68,.15);  color: #f87171; border-color: rgba(239,68,68,.3); }
+            .btn-accion:hover.chat   { background: rgba(16,185,129,.15); color: #34d399; border-color: rgba(16,185,129,.3); }
+
+            /* Fila vacía */
+            .empty-row td {
+                text-align: center;
+                padding: 48px;
+                color: var(--text-secondary);
+            }
+            .empty-row i { font-size: 36px; display: block; margin-bottom: 10px; color: rgba(99,102,241,.3); }
+
+            /* ── Modal ──────────────────────────────────── */
+            .modal-backdrop {
+                display: none;
+                position: fixed; inset: 0;
+                background: rgba(0,0,0,.6);
+                backdrop-filter: blur(6px);
+                z-index: 200;
+                align-items: center; justify-content: center;
+            }
+            .modal-backdrop.open { display: flex; }
+            .modal {
+                background: #111827;
+                border: 1px solid var(--card-border);
+                border-radius: 20px;
+                padding: 32px;
+                width: 100%; max-width: 480px;
+                animation: modalIn .25s ease;
+                margin: 24px;
+            }
+            @keyframes modalIn {
+                from { opacity: 0; transform: scale(.95) translateY(10px); }
+                to   { opacity: 1; transform: scale(1)  translateY(0); }
+            }
+            .modal-header {
+                display: flex; justify-content: space-between; align-items: center;
+                margin-bottom: 24px;
+            }
+            .modal-title { font-size: 18px; font-weight: 700; }
+            .modal-close {
+                width: 32px; height: 32px; border-radius: 8px;
+                border: 1px solid var(--card-border);
+                background: rgba(255,255,255,.03);
+                color: var(--text-secondary);
+                cursor: pointer; font-size: 18px;
+                display: flex; align-items: center; justify-content: center;
+            }
+            .modal-close:hover { color: var(--text-primary); background: rgba(255,255,255,.07); }
+
+            .modal .form-group { margin-bottom: 16px; }
+            .modal label {
+                display: block; font-size: 13px; font-weight: 500;
+                color: var(--text-secondary); margin-bottom: 6px;
+            }
+            .modal input, .modal textarea, .modal select {
+                width: 100%;
+                background: rgba(255,255,255,.04);
+                border: 1px solid rgba(255,255,255,.08);
+                border-radius: 10px;
+                padding: 11px 14px;
+                color: var(--text-primary);
+                font-size: 14px; font-family: 'Outfit', sans-serif;
+                transition: border-color .2s, box-shadow .2s;
+            }
+            .modal input:focus, .modal textarea:focus, .modal select:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(99,102,241,.15);
+            }
+            .modal textarea { resize: vertical; min-height: 80px; }
+            .modal select option { background: #111827; }
+            .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+            .btn-cancel {
+                padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 500;
+                border: 1px solid var(--card-border); background: transparent;
+                color: var(--text-secondary); cursor: pointer; font-family: 'Outfit', sans-serif;
+                transition: all .2s;
+            }
+            .btn-cancel:hover { background: rgba(255,255,255,.05); color: var(--text-primary); }
+            .invalid-feedback { color: #f87171; font-size: 12px; margin-top: 5px; display: none; }
+            .is-invalid { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,.15) !important; }
+
+            @media (max-width: 768px) {
+                .stats-grid { grid-template-columns: repeat(2, 1fr); }
+                .table-toolbar { flex-direction: column; align-items: stretch; }
+                .search-box { max-width: 100%; }
+            }
+        </style>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div style="margin-bottom: 24px;">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category if category != 'error' else 'danger' }}"
+                             style="padding:14px 16px;border-radius:12px;font-size:14px;font-weight:500;
+                                    margin-bottom:12px;display:flex;align-items:center;border:1px solid transparent;
+                                    {% if category=='success' %}background:rgba(16,185,129,.1);color:#34d399;border-color:rgba(16,185,129,.2);
+                                    {% elif category=='danger' %}background:rgba(239,68,68,.1);color:#f87171;border-color:rgba(239,68,68,.2);
+                                    {% else %}background:rgba(59,130,246,.1);color:#60a5fa;border-color:rgba(59,130,246,.2);{% endif %}">
+                            <i class="bi bi-info-circle-fill" style="margin-right:8px"></i>
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
                 </div>
-            </div>
-            
-            <a href="{{ url_for('auth.logout') }}" class="logout-btn">
-                <span>Cerrar Sesión</span>
-                <i class="bi bi-box-arrow-right"></i>
-            </a>
-        </div>
-    </header>
+            {% endif %}
+        {% endwith %}
+>>>>>>> origin/main
 
-    <!-- Contenedor del Dashboard -->
-    <main class="dashboard-container">
-        
-        <!-- Contenedor de Alertas -->
-        <div id="alertContainer" style="margin-bottom: 24px;"></div>
-
+        <!-- Bienvenida -->
         <div class="welcome-section">
-            <h1 class="welcome-title">¡Hola, {{ session.get('user_name', 'Usuario') }}!</h1>
-            <p class="welcome-desc">Bienvenido a tu panel de control de exámenes de laboratorio.</p>
+            <h1 class="welcome-title">¡Hola, {{ session.get('user_name', 'Usuario').split()[0] }}!</h1>
+            <p class="welcome-desc">
+                {% if session.get('rol') == 'Tecnico' %}
+                    Gestiona el catálogo de exámenes y atiende a los pacientes del laboratorio.
+                {% else %}
+                    Consulta tus citas programadas y revisa tus resultados clínicos.
+                {% endif %}
+            </p>
         </div>
 
+<<<<<<< HEAD
         <div class="dashboard-grid">
             
             <!-- Sección de Exámenes -->
@@ -359,13 +350,327 @@
                             </button>
                         </div>
                     </div>
+=======
+        <!-- ════════════════════════════════════════════
+             VISTA TÉCNICO
+        ════════════════════════════════════════════ -->
+        {% if session.get('rol') == 'Tecnico' %}
+
+        <!-- Stats técnico -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon purple"><i class="bi bi-journals"></i></div>
+                <div>
+                    <div class="stat-num">{{ examenes|length if examenes is defined else 0 }}</div>
+                    <div class="stat-label">Exámenes en catálogo</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon indigo"><i class="bi bi-people"></i></div>
+                <div>
+                    <div class="stat-num">{{ total_pacientes if total_pacientes is defined else 0 }}</div>
+                    <div class="stat-label">Pacientes registrados</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="bi bi-clipboard2-check"></i></div>
+                <div>
+                    <div class="stat-num">{{ citas_hoy if citas_hoy is defined else 0 }}</div>
+                    <div class="stat-label">Citas para hoy</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon amber"><i class="bi bi-hourglass-split"></i></div>
+                <div>
+                    <div class="stat-num">{{ resultados_pendientes if resultados_pendientes is defined else 0 }}</div>
+                    <div class="stat-label">Resultados pendientes</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla CRUD de exámenes -->
+        <div class="dashboard-card" style="border-left: 4px solid #c084fc;">
+            <div class="table-toolbar">
+                <div style="display:flex;align-items:center;gap:10px">
+                    <h2 class="card-title" style="font-size:18px">
+                        <i class="bi bi-journals" style="color:var(--primary)"></i>
+                        Catálogo de Exámenes
+                    </h2>
+                    <span class="user-role tecnico">Sección Técnico</span>
+                </div>
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                    <div class="search-box">
+                        <i class="bi bi-search"></i>
+                        <input type="text" id="searchExamen" placeholder="Buscar examen...">
+                    </div>
+                    <button class="btn-primary-lab" onclick="abrirModal('crear')">
+                        <i class="bi bi-plus-lg"></i> Nuevo examen
+                    </button>
+>>>>>>> origin/main
                 </div>
             </div>
 
+            <div class="table-wrap">
+                <table id="tablaExamenes">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Nombre del examen</th>
+                            <th>Precio</th>
+                            <th>Tiempo entrega</th>
+                            <th>Estado</th>
+                            <th style="text-align:center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaBody">
+                        {% if examenes is defined and examenes %}
+                            {% for examen in examenes %}
+                            <tr data-nombre="{{ examen.nombre|lower }}">
+                                <td style="color:var(--text-secondary);font-size:13px">{{ examen.id }}</td>
+                                <td>
+                                    <div class="exam-name">{{ examen.nombre }}</div>
+                                    <div class="exam-desc">{{ examen.descripcion }}</div>
+                                </td>
+                                <td><span class="precio-badge">${{ "%.2f"|format(examen.precio) }}</span></td>
+                                <td><span class="tiempo-badge"><i class="bi bi-clock"></i> {{ examen.tiempo_entrega }}</span></td>
+                                <td>
+                                    <span class="activo-badge {{ 'activo' if examen.activo else 'inactivo' }}">
+                                        <i class="bi bi-circle-fill" style="font-size:7px"></i>
+                                        {{ 'Activo' if examen.activo else 'Inactivo' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="actions" style="justify-content:center">
+                                        <button class="btn-accion edit" title="Editar"
+                                            onclick="abrirModal('editar', {{ examen.id }}, '{{ examen.nombre }}', '{{ examen.descripcion }}', {{ examen.precio }}, '{{ examen.tiempo_entrega }}', {{ examen.activo|lower }})">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn-accion delete" title="Eliminar"
+                                            onclick="confirmarEliminar({{ examen.id }}, '{{ examen.nombre }}')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <!-- Fila de demostración visual (se reemplaza con datos reales) -->
+                            <tr data-nombre="hemograma completo">
+                                <td style="color:var(--text-secondary);font-size:13px">1</td>
+                                <td>
+                                    <div class="exam-name">Hemograma completo</div>
+                                    <div class="exam-desc">Análisis completo de células sanguíneas</div>
+                                </td>
+                                <td><span class="precio-badge">$12.50</span></td>
+                                <td><span class="tiempo-badge"><i class="bi bi-clock"></i> 24 horas</span></td>
+                                <td><span class="activo-badge activo"><i class="bi bi-circle-fill" style="font-size:7px"></i> Activo</span></td>
+                                <td>
+                                    <div class="actions" style="justify-content:center">
+                                        <button class="btn-accion edit" title="Editar" onclick="abrirModal('editar',1,'Hemograma completo','Análisis completo de células sanguíneas',12.50,'24 horas',true)"><i class="bi bi-pencil"></i></button>
+                                        <button class="btn-accion delete" title="Eliminar" onclick="confirmarEliminar(1,'Hemograma completo')"><i class="bi bi-trash"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr data-nombre="glucosa en sangre">
+                                <td style="color:var(--text-secondary);font-size:13px">2</td>
+                                <td>
+                                    <div class="exam-name">Glucosa en sangre</div>
+                                    <div class="exam-desc">Medición de niveles de glucosa en ayunas</div>
+                                </td>
+                                <td><span class="precio-badge">$8.00</span></td>
+                                <td><span class="tiempo-badge"><i class="bi bi-clock"></i> 2 horas</span></td>
+                                <td><span class="activo-badge activo"><i class="bi bi-circle-fill" style="font-size:7px"></i> Activo</span></td>
+                                <td>
+                                    <div class="actions" style="justify-content:center">
+                                        <button class="btn-accion edit" title="Editar" onclick="abrirModal('editar',2,'Glucosa en sangre','Medición de niveles de glucosa en ayunas',8.00,'2 horas',true)"><i class="bi bi-pencil"></i></button>
+                                        <button class="btn-accion delete" title="Eliminar" onclick="confirmarEliminar(2,'Glucosa en sangre')"><i class="bi bi-trash"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr data-nombre="uroanálisis">
+                                <td style="color:var(--text-secondary);font-size:13px">3</td>
+                                <td>
+                                    <div class="exam-name">Uroanálisis</div>
+                                    <div class="exam-desc">Análisis físico, químico y microscópico de orina</div>
+                                </td>
+                                <td><span class="precio-badge">$6.50</span></td>
+                                <td><span class="tiempo-badge"><i class="bi bi-clock"></i> 4 horas</span></td>
+                                <td><span class="activo-badge inactivo"><i class="bi bi-circle-fill" style="font-size:7px"></i> Inactivo</span></td>
+                                <td>
+                                    <div class="actions" style="justify-content:center">
+                                        <button class="btn-accion edit" title="Editar" onclick="abrirModal('editar',3,'Uroanálisis','Análisis físico, químico y microscópico de orina',6.50,'4 horas',false)"><i class="bi bi-pencil"></i></button>
+                                        <button class="btn-accion delete" title="Eliminar" onclick="confirmarEliminar(3,'Uroanálisis')"><i class="bi bi-trash"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════
+             VISTA PACIENTE
+        ════════════════════════════════════════════ -->
+        {% else %}
+
+        <!-- Stats paciente -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon indigo"><i class="bi bi-calendar2-check"></i></div>
+                <div>
+                    <div class="stat-num">{{ citas|length if citas is defined else 0 }}</div>
+                    <div class="stat-label">Mis citas</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon amber"><i class="bi bi-hourglass"></i></div>
+                <div>
+                    <div class="stat-num">{{ citas|selectattr('estado','eq','pendiente')|list|length if citas is defined else 0 }}</div>
+                    <div class="stat-label">Pendientes</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="bi bi-file-earmark-check"></i></div>
+                <div>
+                    <div class="stat-num">{{ resultados_disponibles if resultados_disponibles is defined else 0 }}</div>
+                    <div class="stat-label">Resultados listos</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple"><i class="bi bi-chat-dots"></i></div>
+                <div>
+                    <div class="stat-num">{{ mensajes_nuevos if mensajes_nuevos is defined else 0 }}</div>
+                    <div class="stat-label">Mensajes nuevos</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notificación resultado nuevo (solo si hay) -->
+        {% if resultados_disponibles is defined and resultados_disponibles > 0 %}
+        <div class="notif-banner" id="notifBanner">
+            <i class="bi bi-bell-fill"></i>
+            <span>Tienes <strong>{{ resultados_disponibles }} resultado(s)</strong> listo(s) para revisar.</span>
+        </div>
+        {% endif %}
+
+        <!-- Tabla de citas del paciente -->
+        <div class="dashboard-card" style="border-left: 4px solid #818cf8;">
+            <div class="table-toolbar">
+                <div style="display:flex;align-items:center;gap:10px">
+                    <h2 class="card-title" style="font-size:18px">
+                        <i class="bi bi-clipboard2-pulse" style="color:var(--primary)"></i>
+                        Mis Citas y Resultados
+                    </h2>
+                    <span class="user-role paciente">Sección Paciente</span>
+                </div>
+                <a href="{{ url_for('main.nueva_cita') if main is defined else '#' }}" class="btn-primary-lab">
+                    <i class="bi bi-plus-lg"></i> Nueva cita
+                </a>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Examen</th>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Estado</th>
+                            <th>Resultado</th>
+                            <th style="text-align:center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if citas is defined and citas %}
+                            {% for cita in citas %}
+                            <tr>
+                                <td style="color:var(--text-secondary);font-size:13px">{{ cita.id }}</td>
+                                <td><div class="exam-name">{{ cita.tipo_examen }}</div></td>
+                                <td>{{ cita.fecha }}</td>
+                                <td>{{ cita.hora }}</td>
+                                <td><span class="cita-estado {{ cita.estado }}">{{ cita.estado|capitalize }}</span></td>
+                                <td>
+                                    {% if cita.resultado_disponible %}
+                                        <span class="resultado-disponible"><i class="bi bi-circle-fill" style="font-size:7px"></i> Disponible</span>
+                                    {% else %}
+                                        <span class="resultado-pendiente"><i class="bi bi-clock" style="font-size:11px"></i> Pendiente</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="actions" style="justify-content:center">
+                                        <a href="{{ url_for('chat.sala', cita_id=cita.id) }}" class="btn-accion chat" title="Abrir chat">
+                                            <i class="bi bi-chat-dots"></i>
+                                        </a>
+                                        {% if cita.resultado_disponible %}
+                                        <a href="{{ url_for('main.ver_resultado', cita_id=cita.id) if main is defined else '#' }}" class="btn-accion edit" title="Ver resultado">
+                                            <i class="bi bi-file-earmark-text"></i>
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <!-- Filas de demo -->
+                            <tr>
+                                <td style="color:var(--text-secondary);font-size:13px">1</td>
+                                <td><div class="exam-name">Hemograma completo</div></td>
+                                <td>12/06/2025</td>
+                                <td>09:00</td>
+                                <td><span class="cita-estado confirmada">Confirmada</span></td>
+                                <td><span class="resultado-pendiente"><i class="bi bi-clock" style="font-size:11px"></i> Pendiente</span></td>
+                                <td>
+                                    <div class="actions" style="justify-content:center">
+                                        <a href="#" class="btn-accion chat" title="Abrir chat"><i class="bi bi-chat-dots"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="color:var(--text-secondary);font-size:13px">2</td>
+                                <td><div class="exam-name">Glucosa en sangre</div></td>
+                                <td>05/06/2025</td>
+                                <td>10:30</td>
+                                <td><span class="cita-estado completada">Completada</span></td>
+                                <td><span class="resultado-disponible"><i class="bi bi-circle-fill" style="font-size:7px"></i> Disponible</span></td>
+                                <td>
+                                    <div class="actions" style="justify-content:center">
+                                        <a href="#" class="btn-accion chat" title="Abrir chat"><i class="bi bi-chat-dots"></i></a>
+                                        <a href="#" class="btn-accion edit" title="Ver resultado"><i class="bi bi-file-earmark-text"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% endif %}
+
+        <!-- Sección chat (visible para ambos roles) -->
+        <div class="dashboard-card" style="margin-top:24px">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="bi bi-chat-dots"></i>
+                    Canal de Soporte Clínico
+                </h2>
+                <span style="font-size:13px;color:var(--text-secondary)">Tiempo real · WebSocket</span>
+            </div>
+            <p style="color:var(--text-secondary);font-size:14px;line-height:1.7;margin-bottom:20px">
+                Comunícate directamente con
+                {% if session.get('rol') == 'Tecnico' %}el paciente{% else %}el técnico del laboratorio{% endif %}
+                para resolver dudas sobre muestras o resultados.
+            </p>
+            <a href="{{ url_for('chat.sala', cita_id=1) if chat is defined else '#' }}" class="btn-primary-lab">
+                <i class="bi bi-chat-dots"></i> Abrir chat
+            </a>
         </div>
 
     </main>
 
+<<<<<<< HEAD
     <!-- Modal para Crear/Editar Examen -->
     <div class="modal" id="examenModal">
         <div class="modal-content">
@@ -407,11 +712,70 @@
                 <div class="modal-footer">
                     <button type="button" class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
                     <button type="submit" class="btn-primary">Guardar Examen</button>
+=======
+    <!-- ══════════════════════════════════════════════════
+         MODAL: Crear / Editar examen (solo Técnico)
+    ══════════════════════════════════════════════════ -->
+    {% if session.get('rol') == 'Tecnico' %}
+    <div class="modal-backdrop" id="modalBackdrop">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Nuevo Examen</h3>
+                <button class="modal-close" onclick="cerrarModal()">×</button>
+            </div>
+
+            <form id="examenForm" method="POST" novalidate>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="examen_id" id="examenId">
+
+                <div class="form-group">
+                    <label>Nombre del examen *</label>
+                    <input type="text" name="nombre" id="inputNombre"
+                           placeholder="Ej. Hemograma completo" maxlength="100">
+                    <div class="invalid-feedback" id="errNombre">El nombre es obligatorio.</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea name="descripcion" id="inputDesc"
+                              placeholder="Describe brevemente en qué consiste el examen..." rows="3"></textarea>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                    <div class="form-group">
+                        <label>Precio (USD) *</label>
+                        <input type="number" name="precio" id="inputPrecio"
+                               placeholder="0.00" min="0" step="0.01">
+                        <div class="invalid-feedback" id="errPrecio">Ingresa un precio válido.</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Tiempo de entrega *</label>
+                        <input type="text" name="tiempo_entrega" id="inputTiempo"
+                               placeholder="Ej. 24 horas">
+                        <div class="invalid-feedback" id="errTiempo">Campo obligatorio.</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Estado</label>
+                    <select name="activo" id="inputActivo">
+                        <option value="true">Activo</option>
+                        <option value="false">Inactivo</option>
+                    </select>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary-lab" id="btnGuardar">
+                        <i class="bi bi-check-lg"></i> Guardar
+                    </button>
+>>>>>>> origin/main
                 </div>
             </form>
         </div>
     </div>
 
+<<<<<<< HEAD
     <!-- Script -->
     <script>
         let examenEditandoId = null;
@@ -796,9 +1160,156 @@
                         };
                         list.appendChild(btn);
                     });
+=======
+    <!-- Modal confirmar eliminar -->
+    <div class="modal-backdrop" id="deleteBackdrop">
+        <div class="modal" style="max-width:380px">
+            <div class="modal-header">
+                <h3 class="modal-title" style="color:#f87171">Eliminar examen</h3>
+                <button class="modal-close" onclick="cerrarDelete()">×</button>
+            </div>
+            <p style="color:var(--text-secondary);font-size:14px;line-height:1.6;margin-bottom:8px">
+                ¿Estás seguro que deseas eliminar
+                <strong id="deleteNombre" style="color:var(--text-primary)"></strong>?
+                Esta acción no se puede deshacer.
+            </p>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="cerrarDelete()">Cancelar</button>
+                <form id="deleteForm" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" style="padding:10px 20px;border-radius:10px;font-size:14px;
+                        font-weight:600;background:rgba(239,68,68,.2);color:#f87171;
+                        border:1px solid rgba(239,68,68,.3);cursor:pointer;font-family:'Outfit',sans-serif;
+                        transition:all .2s" onmouseover="this.style.background='rgba(239,68,68,.35)'"
+                        onmouseout="this.style.background='rgba(239,68,68,.2)'">
+                        <i class="bi bi-trash"></i> Sí, eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <script>
+        // ── Búsqueda en tabla ──────────────────────────────────
+        const searchInput = document.getElementById('searchExamen');
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                const q = searchInput.value.toLowerCase().trim();
+                document.querySelectorAll('#tablaBody tr[data-nombre]').forEach(row => {
+                    row.style.display = row.dataset.nombre.includes(q) ? '' : 'none';
+                });
+            });
+        }
+
+        // ── Modal Crear / Editar ───────────────────────────────
+        const modalBackdrop = document.getElementById('modalBackdrop');
+        const examenForm    = document.getElementById('examenForm');
+
+        function abrirModal(modo, id, nombre, desc, precio, tiempo, activo) {
+            if (!modalBackdrop) return;
+            document.getElementById('modalTitle').textContent = modo === 'crear' ? 'Nuevo Examen' : 'Editar Examen';
+            document.getElementById('examenId').value  = id    || '';
+            document.getElementById('inputNombre').value = nombre || '';
+            document.getElementById('inputDesc').value   = desc   || '';
+            document.getElementById('inputPrecio').value = precio !== undefined ? precio : '';
+            document.getElementById('inputTiempo').value = tiempo || '';
+            document.getElementById('inputActivo').value = activo !== undefined ? String(activo) : 'true';
+
+            // La ruta cambia según si es crear o editar — el Int.3 ajusta las rutas
+            examenForm.action = modo === 'crear'
+                ? "{{ url_for('main.crear_examen') if main is defined else '#' }}"
+                : `/examenes/${id}/editar`;
+
+            limpiarErrores();
+            modalBackdrop.classList.add('open');
+            document.getElementById('inputNombre').focus();
+        }
+
+        function cerrarModal() {
+            modalBackdrop && modalBackdrop.classList.remove('open');
+        }
+
+        // Cerrar con Escape
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') { cerrarModal(); cerrarDelete(); } });
+        // Cerrar al hacer clic fuera
+        modalBackdrop && modalBackdrop.addEventListener('click', e => { if (e.target === modalBackdrop) cerrarModal(); });
+
+        // ── Validación del modal ───────────────────────────────
+        function limpiarErrores() {
+            ['inputNombre','inputPrecio','inputTiempo'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) { el.classList.remove('is-invalid'); }
+            });
+            ['errNombre','errPrecio','errTiempo'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+        }
+
+        if (examenForm) {
+            examenForm.addEventListener('submit', e => {
+                limpiarErrores();
+                let valid = true;
+
+                const nombre = document.getElementById('inputNombre');
+                const precio = document.getElementById('inputPrecio');
+                const tiempo = document.getElementById('inputTiempo');
+
+                if (!nombre.value.trim()) {
+                    nombre.classList.add('is-invalid');
+                    document.getElementById('errNombre').style.display = 'block';
+                    valid = false;
+                }
+                if (!precio.value || isNaN(precio.value) || Number(precio.value) < 0) {
+                    precio.classList.add('is-invalid');
+                    document.getElementById('errPrecio').style.display = 'block';
+                    valid = false;
+                }
+                if (!tiempo.value.trim()) {
+                    tiempo.classList.add('is-invalid');
+                    document.getElementById('errTiempo').style.display = 'block';
+                    valid = false;
+                }
+
+                if (!valid) e.preventDefault();
+            });
+        }
+
+        // ── Modal Eliminar ─────────────────────────────────────
+        const deleteBackdrop = document.getElementById('deleteBackdrop');
+
+        function confirmarEliminar(id, nombre) {
+            if (!deleteBackdrop) return;
+            document.getElementById('deleteNombre').textContent = nombre;
+            document.getElementById('deleteForm').action = `/examenes/${id}/eliminar`;
+            deleteBackdrop.classList.add('open');
+        }
+
+        function cerrarDelete() {
+            deleteBackdrop && deleteBackdrop.classList.remove('open');
+        }
+
+        deleteBackdrop && deleteBackdrop.addEventListener('click', e => { if (e.target === deleteBackdrop) cerrarDelete(); });
+
+        // ── Notificación WebSocket: resultado listo ────────────
+        if (typeof io !== 'undefined') {
+            const socket = io();
+            socket.on('resultado_listo', data => {
+                const banner = document.getElementById('notifBanner');
+                if (banner) {
+                    banner.style.display = 'flex';
+                    banner.querySelector('span').innerHTML =
+                        ` Tu resultado de <strong>${data.tipo_examen}</strong> ya está disponible.`;
+>>>>>>> origin/main
                 }
             });
         }
     </script>
+<<<<<<< HEAD
+=======
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+>>>>>>> origin/main
 </body>
 </html>
