@@ -1,4 +1,5 @@
 from app.models.usuario import db
+from datetime import datetime
 
 class Examen(db.Model):
     __tablename__ = 'examenes'
@@ -8,3 +9,8 @@ class Examen(db.Model):
     descripcion = db.Column(db.Text, nullable=False)
     precio = db.Column(db.Float, nullable=False)
     tiempo_entrega = db.Column(db.String(50), nullable=False)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+    fecha_creacion = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    
+    # Relación con Usuario
+    usuario = db.relationship('Usuario', backref=db.backref('examenes', lazy=True))

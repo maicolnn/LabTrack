@@ -4,6 +4,16 @@ from app.models.usuario import db, Usuario
 # Creamos el Blueprint para agrupar las rutas de autenticación
 auth_bp = Blueprint('auth', __name__)
 
+def _normalize_role(role: str | None) -> str | None:
+    if role is None:
+        return None
+    role = role.strip()
+    if role.lower() in ('técnico', 'tecnico'):
+        return 'Tecnico'
+    if role.lower() == 'paciente':
+        return 'Paciente'
+    return role
+
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -23,7 +33,7 @@ def login():
         if usuario and usuario.check_password(password):
             # Guardar información en la sesión
             session['user_id'] = usuario.id
-            session['rol'] = usuario.rol
+            session['rol'] = _normalize_role(usuario.rol)
             session['user_name'] = usuario.nombre
             
             flash(f'¡Bienvenido de nuevo, {usuario.nombre}!', 'success')
@@ -42,7 +52,7 @@ def registro():
         nombre = request.form.get('nombre')
         correo = request.form.get('correo')
         password = request.form.get('password')
-        rol = request.form.get('rol', 'Paciente')  # Default a 'Paciente'
+        rol = _normalize_role(request.form.get('rol', 'Paciente'))  # Default a 'Paciente'
 
         # Validar campos requeridos
         if not (cedula and nombre and correo and password):

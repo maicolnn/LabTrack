@@ -268,8 +268,9 @@
         <div class="user-profile">
             <div class="user-info">
                 <div class="user-name">{{ session.get('user_name', 'Usuario') }}</div>
-                <div class="user-role {{ 'tecnico' if session.get('rol') == 'Tecnico' else 'paciente' }}">
-                    {{ 'Técnico' if session.get('rol') == 'Tecnico' else 'Paciente' }}
+                {% set es_tecnico = session.get('rol') in ['Tecnico', 'Técnico'] %}
+                <div class="user-role {{ 'tecnico' if es_tecnico else 'paciente' }}">
+                    {{ 'Técnico' if es_tecnico else 'Paciente' }}
                 </div>
             </div>
             
@@ -300,7 +301,7 @@
                         <i class="bi bi-table"></i>
                         <span>Catálogo de Exámenes Médicos</span>
                     </h2>
-                    {% if session.get('rol') == 'Tecnico' %}
+                    {% if es_tecnico %}
                         <button class="btn-add" id="btnCrearExamen">
                             <i class="bi bi-plus-lg"></i>
                             <span>Nuevo Examen</span>
@@ -323,12 +324,10 @@
                         <span>Canal de Soporte Clínico en Tiempo Real</span>
                     </h2>
                 </div>
-                <p style="color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6;">
-                    Chat bidireccional en tiempo real mediante WebSockets, permitiendo la comunicación interactiva instantánea entre el paciente y el técnico del laboratorio.
-                </p>
+                
                 <div style="background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 40px; text-align: center; color: var(--text-secondary);">
                     <i class="bi bi-chat-quote" style="font-size: 32px; display: block; margin-bottom: 12px; color: var(--primary);"></i>
-                    Interface del Chat en Tiempo Real (WebSockets)
+                     Chat en Tiempo Real
                 </div>
             </div>
 
@@ -345,6 +344,15 @@
             </div>
             
             <form id="examenForm">
+                {% if es_tecnico %}
+                <div class="form-group">
+                    <label class="form-label">Asignar a Paciente</label>
+                    <select name="usuario_id" class="form-input" required id="selectPaciente">
+                        <option value="">-- Selecciona un paciente --</option>
+                    </select>
+                </div>
+                {% endif %}
+
                 <div class="form-group">
                     <label class="form-label">Nombre del Examen</label>
                     <input type="text" name="nombre" class="form-input" placeholder="Ej: Análisis de sangre" required>
@@ -376,17 +384,52 @@
     <!-- Script -->
     <script>
         let examenEditandoId = null;
+        const isTecnico = {{ 'true' if es_tecnico else 'false' }};
 
         // Cargar exámenes al iniciar
         document.addEventListener('DOMContentLoaded', cargarExamenes);
 
         // Event listener para crear examen
-        document.getElementById('btnCrearExamen')?.addEventListener('click', () => {
+        document.getElementById('btnCrearExamen')?.addEventListener('click', async () => {
             examenEditandoId = null;
             document.getElementById('modalTitle').textContent = 'Nuevo Examen';
             document.getElementById('examenForm').reset();
+            
+            // Si es técnico, cargar pacientes
+            if (isTecnico) {
+                await cargarPacientes();
+            }
+            
             document.getElementById('examenModal').classList.add('active');
         });
+
+        // Cargar lista de pacientes
+        async function cargarPacientes() {
+            try {
+                const response = await fetch('/pacientes');
+                const resultado = await response.json();
+
+                const selectPaciente = document.getElementById('selectPaciente');
+                selectPaciente.innerHTML = '<option value="">-- Selecciona un paciente --</option>';
+
+                if (resultado.success && resultado.pacientes.length > 0) {
+                    resultado.pacientes.forEach(paciente => {
+                        const option = document.createElement('option');
+                        option.value = paciente.id;
+                        option.textContent = `${paciente.nombre} (${paciente.cedula})`;
+                        selectPaciente.appendChild(option);
+                    });
+                } else {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'No hay pacientes disponibles';
+                    option.disabled = true;
+                    selectPaciente.appendChild(option);
+                }
+            } catch (error) {
+                mostrarAlerta('Error al cargar pacientes: ' + error.message, 'danger');
+            }
+        }
 
         // Event listener para enviar formulario
         document.getElementById('examenForm').addEventListener('submit', async (e) => {
@@ -436,12 +479,18 @@
                 if (resultado.success && resultado.examenes.length > 0) {
                     let html = '<div class="table-container"><table>';
                     html += '<thead><tr>';
+                    
+                    // Si es técnico, mostrar columna de paciente
+                    if (isTecnico) {
+                        html += '<th>Paciente</th>';
+                    }
+                    
                     html += '<th>Nombre</th>';
                     html += '<th>Descripción</th>';
                     html += '<th>Precio</th>';
                     html += '<th>Tiempo de Entrega</th>';
                     
-                    if ({{ 'true' if session.get('rol') == 'Tecnico' else 'false' }}) {
+                    if (isTecnico) {
                         html += '<th style="text-align: center;">Acciones</th>';
                     }
                     
@@ -449,13 +498,18 @@
                     html += '<tbody>';
 
                     resultado.examenes.forEach(examen => {
-                        html += `<tr>
-                            <td><strong>${examen.nombre}</strong></td>
+                        html += `<tr>`;
+                        
+                        if (isTecnico) {
+                            html += `<td><strong>${examen.usuario_nombre}</strong></td>`;
+                        }
+                        
+                        html += `<td><strong>${examen.nombre}</strong></td>
                             <td>${examen.descripcion}</td>
                             <td>$${parseFloat(examen.precio).toFixed(2)}</td>
                             <td>${examen.tiempo_entrega}</td>`;
                         
-                        if ({{ 'true' if session.get('rol') == 'Tecnico' else 'false' }}) {
+                        if (isTecnico) {
                             html += `<td style="text-align: center;">
                                 <div class="action-buttons">
                                     <button class="btn-edit" onclick="editarExamen(${examen.id})">
@@ -478,7 +532,7 @@
                         <div class="empty-state">
                             <i class="bi bi-inbox"></i>
                             <h3>No hay exámenes registrados</h3>
-                            <p>Crea el primer examen para comenzar.</p>
+                            <p>${isTecnico ? 'Crea el primer examen para comenzar.' : 'Aún no te han asignado exámenes.'}</p>
                         </div>
                     `;
                 }
@@ -503,6 +557,12 @@
                     examenEditandoId = id;
                     
                     document.getElementById('modalTitle').textContent = 'Editar Examen';
+                    
+                    if (isTecnico) {
+                        await cargarPacientes();
+                        document.getElementById('selectPaciente').value = examen.usuario_id;
+                    }
+                    
                     document.querySelector('[name="nombre"]').value = examen.nombre;
                     document.querySelector('[name="descripcion"]').value = examen.descripcion;
                     document.querySelector('[name="precio"]').value = examen.precio;
