@@ -377,6 +377,48 @@ body {
         justify-content: center;
     }
 
+/* Ensure select options are readable in both themes (dashboard) */
+select,
+.form-select {
+    color: var(--text-primary);
+    background-color: transparent;
+}
+
+select option,
+.form-select option {
+    background-color: rgba(17, 25, 40, 0.95);
+    color: var(--text-primary);
+}
+
+html[data-theme='light'] select option,
+html[data-theme='light'] .form-select option {
+    background-color: rgba(255, 255, 255, 0.98);
+    color: var(--text-primary);
+}
+
+/* Some browsers require -webkit-appearance adjustments */
+select::-ms-expand { display: none; }
+select { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
+
+/* Very specific rules for examen modal selects to override browser defaults */
+#examenModal select,
+#examenModal .form-input {
+    color: var(--text-primary) !important;
+    background-color: transparent !important;
+}
+
+#examenModal select option,
+#examenModal .form-input option {
+    background-color: rgba(17, 25, 40, 0.98) !important;
+    color: var(--text-primary) !important;
+}
+
+html[data-theme='light'] #examenModal select option,
+html[data-theme='light'] #examenModal .form-input option {
+    background-color: rgba(255, 255, 255, 0.98) !important;
+    color: var(--text-primary) !important;
+}
+
     .actions {
         justify-content: flex-start !important;
     }
