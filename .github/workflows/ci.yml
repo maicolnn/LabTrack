@@ -5,10 +5,12 @@ on:
     branches:
       - main
       - master
+      - feature/microservicios
   pull_request:
     branches:
       - main
       - master
+      - feature/microservicios
 
 jobs:
   # 1. Trabajo de validación y pruebas
