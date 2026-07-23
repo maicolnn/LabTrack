@@ -1,0 +1,209 @@
+version: '3.8'
+
+services:
+  # --- BASES DE DATOS INDEPENDIENTES (PostgreSQL) ---
+  auth-db:
+    image: postgres:15-alpine
+    container_name: auth-db
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5431:5432"
+    volumes:
+      - auth-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  exams-db:
+    image: postgres:15-alpine
+    container_name: exams-db
+    environment:
+      POSTGRES_DB: exams_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - exams-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  communications-db:
+    image: postgres:15-alpine
+    container_name: communications-db
+    environment:
+      POSTGRES_DB: communications_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - comm-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # --- MICROSERVICIOS BACKEND ---
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@auth-db:5432/auth_db
+      PORT: 5001
+      SECRET_KEY: clave_secreta_laboratorio_2026
+    ports:
+      - "5001:5001"
+    depends_on:
+      auth-db:
+        condition: service_healthy
+
+  exams-service:
+    build:
+      context: ./exams-service
+      dockerfile: Dockerfile
+    container_name: exams-service
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@exams-db:5432/exams_db
+      PORT: 5002
+      AUTH_SERVICE_URL: http://auth-service:5001
+      COMM_SERVICE_URL: http://communications-service:5003
+      SECRET_KEY: clave_secreta_laboratorio_2026
+      UPLOAD_FOLDER: /app/app/static/uploads/resultados
+    ports:
+      - "5002:5002"
+    volumes:
+      - shared-uploads:/app/app/static/uploads/resultados
+    depends_on:
+      exams-db:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+
+  communications-service:
+    build:
+      context: ./communications-service
+      dockerfile: Dockerfile
+    container_name: communications-service
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@communications-db:5432/communications_db
+      PORT: 5003
+      AUTH_SERVICE_URL: http://auth-service:5001
+      SECRET_KEY: clave_secreta_laboratorio_2026
+    ports:
+      - "5003:5003"
+    depends_on:
+      communications-db:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+
+  # --- API GATEWAY ---
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    environment:
+      PORT: 5000
+      AUTH_SERVICE_URL: http://auth-service:5001
+      EXAMS_SERVICE_URL: http://exams-service:5002
+      COMM_SERVICE_URL: http://communications-service:5003
+      SECRET_KEY: clave_secreta_laboratorio_2026
+    ports:
+      - "5000:5000"
+    depends_on:
+      - auth-service
+      - exams-service
+      - communications-service
+
+  # --- FRONTEND (BFF) ---
+  frontend-service:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: frontend-service
+    environment:
+      PORT: 5004
+      API_GATEWAY_URL: http://api-gateway:5000
+      SECRET_KEY: clave_secreta_laboratorio_2026
+    ports:
+      - "5004:5004"
+    volumes:
+      - shared-uploads:/app/app/static/uploads/resultados
+    depends_on:
+      - api-gateway
+
+  # --- NGINX (Unified Entry Point) ---
+  nginx:
+    image: nginx:alpine
+    container_name: entrypoint-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - shared-uploads:/usr/share/nginx/html/static/uploads/resultados:ro
+    depends_on:
+      - frontend-service
+      - api-gateway
+      - communications-service
+
+  # --- METRICS & OBSERVABILITY ---
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - api-gateway
+      - auth-service
+      - exams-service
+      - communications-service
+      - frontend-service
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    volumes:
+      - ./monitoring/loki-config.yml:/etc/loki/local-config.yaml:ro
+    ports:
+      - "3100:3100"
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    volumes:
+      - ./monitoring/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    depends_on:
+      - loki
+
+volumes:
+  auth-db-data:
+  exams-db-data:
+  comm-db-data:
+  shared-uploads:

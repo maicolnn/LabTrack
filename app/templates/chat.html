@@ -646,13 +646,14 @@
             scrollBottom();
         }
 
-        // ── WebSocket: el Integrante 3 completa esta sección ───
+        // ── WebSocket: Sincronización con el microservicio de comunicaciones ───
         const socket = io();
+        const PACIENTE_ID = {{ session.get('user_id', 0) }};
 
         socket.on('connect', () => {
             statusDot.classList.add('connected');
             statusText.textContent = 'Conectado';
-            socket.emit('unirse_sala', { sala: SALA });
+            socket.emit('join', { paciente_id: PACIENTE_ID, usuario_id: MI_ID });
         });
 
         socket.on('disconnect', () => {
@@ -661,9 +662,18 @@
             sendBtn.disabled = true;
         });
 
-        socket.on('nuevo_mensaje', (data) => {
-            const esMio = data.emisor_id === MI_ID;
-            renderMensaje(data, esMio);
+        socket.on('receive_message', (data) => {
+            const esMio = data.remitente_id === MI_ID;
+            if (esMio) return; // Evitar duplicar el render del mensaje propio
+            
+            const msgData = {
+                emisor_id: data.remitente_id,
+                emisor_nombre: data.remitente_nombre,
+                emisor_rol: data.rol ? data.rol.toLowerCase() : 'paciente',
+                contenido: data.contenido,
+                timestamp: data.fecha
+            };
+            renderMensaje(msgData, false);
         });
 
         // Notificación de resultado listo
@@ -675,7 +685,25 @@
             const contenido = msgInput.value.trim();
             if (!contenido) return;
 
-            socket.emit('mensaje', { sala: SALA, contenido: contenido });
+            const msgObj = {
+                paciente_id: PACIENTE_ID,
+                contenido: contenido,
+                remitente_id: MI_ID,
+                remitente_nombre: MI_NOMBRE,
+                rol: MI_ROL
+            };
+
+            socket.emit('send_message', msgObj);
+
+            // Renderizado local inmediato para mayor fluidez
+            const msgData = {
+                emisor_id: MI_ID,
+                emisor_nombre: MI_NOMBRE,
+                emisor_rol: MI_ROL,
+                contenido: contenido,
+                timestamp: new Date().toLocaleTimeString('es-EC', {hour:'2-digit', minute:'2-digit'})
+            };
+            renderMensaje(msgData, true);
 
             msgInput.value = '';
             msgInput.style.height = 'auto';

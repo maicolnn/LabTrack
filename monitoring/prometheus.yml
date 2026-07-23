@@ -1,0 +1,23 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: ['api-gateway:5000']
+
+  - job_name: 'auth-service'
+    static_configs:
+      - targets: ['auth-service:5001']
+
+  - job_name: 'exams-service'
+    static_configs:
+      - targets: ['exams-service:5002']
+
+  - job_name: 'communications-service'
+    static_configs:
+      - targets: ['communications-service:5003']
+
+  - job_name: 'frontend-service'
+    static_configs:
+      - targets: ['frontend-service:5004']

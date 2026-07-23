@@ -1,0 +1,106 @@
+name: LabTrack CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  # 1. Trabajo de validación y pruebas
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Instalar dependencias de validación
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8
+
+      - name: Validar sintaxis del código (Linting)
+        run: |
+          # Detiene la ejecución si hay errores de sintaxis de Python
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # Advertencias leves no detendrán el build, pero se reportarán
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+  # 2. Trabajo de compilación y publicación de imágenes Docker
+  build-and-push:
+    needs: validate
+    runs-on: ubuntu-latest
+    # Solo compila y publica si el push es en la rama principal (no en pull requests de ramas secundarias)
+    if: github.event_name == 'push'
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Iniciar sesión en Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # Compilar y empujar el Microservicio de Autenticación
+      - name: Build & Push Auth Service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./auth-service
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/labtrack-auth-service:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/labtrack-auth-service:${{ github.sha }}
+
+      # Compilar y empujar el Microservicio de Exámenes
+      - name: Build & Push Exams Service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./exams-service
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/labtrack-exams-service:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/labtrack-exams-service:${{ github.sha }}
+
+      # Compilar y empujar el Microservicio de Comunicaciones
+      - name: Build & Push Communications Service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./communications-service
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/labtrack-communications-service:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/labtrack-communications-service:${{ github.sha }}
+
+      # Compilar y empujar el API Gateway
+      - name: Build & Push API Gateway
+        uses: docker/build-push-action@v5
+        with:
+          context: ./api-gateway
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/labtrack-api-gateway:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/labtrack-api-gateway:${{ github.sha }}
+
+      # Compilar y empujar el Frontend
+      - name: Build & Push Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./frontend/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/labtrack-frontend-service:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/labtrack-frontend-service:${{ github.sha }}
